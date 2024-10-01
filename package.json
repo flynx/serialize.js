@@ -1,0 +1,22 @@
+{
+  "name": "ig-serialize",
+  "version": "0.1.0",
+  "description": "experimental extended json serializaion...",
+  "main": "serialize.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flynx/serialize.js"
+  },
+  "keywords": [
+    "JSON",
+    "serialization"
+  ],
+  "author": "Alex A. Naanou <alex.nanou@gmail.com>",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/flynx/serialize.js/issues"
+  },
+  "homepage": "https://github.com/flynx/serialize.js#readme",
+  "dependencies": {
+  }
+}
