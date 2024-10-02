@@ -16,7 +16,5 @@
   "bugs": {
     "url": "https://github.com/flynx/serialize.js/issues"
   },
-  "homepage": "https://github.com/flynx/serialize.js#readme",
-  "dependencies": {
-  }
+  "homepage": "https://github.com/flynx/serialize.js#readme"
 }
