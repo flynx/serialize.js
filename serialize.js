@@ -2,6 +2,13 @@
 * 
 * XXX the structure of this will change!!
 *
+* XXX merge serialize(..) and stringify(..) -> pre-parse theinput string
+* 		in deserialize(..) to replace undefined, NaN and <empty> with 
+* 		appropriate placeholders...
+* 		There should be two formats:
+* 			- pretty
+* 			- fast -- w/o pre-processing...
+*
 **********************************************************************/
 ((typeof define)[0]=='u'?function(f){module.exports=f(require)}:define)
 (function(require){ var module={} // make module AMD/node compatible...
@@ -22,9 +29,11 @@ var EMPTY = '<< EMPTY >>'
 var UNDEFINED = '<< UNDEFINED >>'
 var NAN = '<< NAN >>'
 
+// XXX unify the output format...
+// XXX handle formatting -- pass to JSON.stringify(..)...
 var serialize = 
 module.serialize =
-function(value, raw=false){
+function(value, raw=true){
 	var replacer = function(k, v){
 		// undefined...
 		if(v === undefined){
@@ -51,6 +60,13 @@ function(value, raw=false){
 			.replace(new RegExp('"'+ NAN +'"', 'g'), 'NaN') }
 
 
+var stringify = 
+module.stringify =
+function(value){
+	return serialize(value, false) }
+
+
+// XXX this should pre-parse te string -- need to handle strings correctly...
 var deserialize = 
 module.deserialize =
 function(str){
