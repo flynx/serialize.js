@@ -29,7 +29,7 @@ var EMPTY = '<< EMPTY >>'
 var UNDEFINED = '<< UNDEFINED >>'
 var NAN = '<< NAN >>'
 
-// XXX unify the output format...
+// XXX unify the output format... (???)
 // XXX handle formatting -- pass to JSON.stringify(..)...
 var serialize = 
 module.serialize =
