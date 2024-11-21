@@ -28,6 +28,8 @@
 var EMPTY = '<< EMPTY >>'
 var UNDEFINED = '<< UNDEFINED >>'
 var NAN = '<< NAN >>'
+var INFINITY = '<< INFINITY >>'
+var NEG_INFINITY = '<< NEG_INFINITY >>'
 
 // XXX unify the output format... (???)
 // XXX handle formatting -- pass to JSON.stringify(..)...
@@ -38,6 +40,14 @@ function(value, raw=true){
 		// undefined...
 		if(v === undefined){
 			return UNDEFINED
+		// Infinity...
+		} else if(typeof(v) == 'number' 
+				&& v === Infinity){
+			return INFINITY
+		// -Infinity...
+		} else if(typeof(v) == 'number' 
+				&& v === -Infinity){
+			return NEG_INFINITY
 		// NaN...
 		} else if(typeof(v) == 'number' 
 				&& isNaN(v)){
@@ -57,6 +67,8 @@ function(value, raw=true){
 			// cleanup placeholders...	
 			.replace(new RegExp('"'+ EMPTY +'"', 'g'), '<empty>')
 			.replace(new RegExp('"'+ UNDEFINED +'"', 'g'), 'undefined')
+			.replace(new RegExp('"'+ INFINITY +'"', 'g'), 'Infinity')
+			.replace(new RegExp('"'+ NEG_INFINITY +'"', 'g'), '-Infinity')
 			.replace(new RegExp('"'+ NAN +'"', 'g'), 'NaN') }
 
 
@@ -74,7 +86,11 @@ function(str){
 	var reviver = function(key, value, context){
 		if(value == UNDEFINED){
 			return PLACEHOLDER }
-		return value == NAN ?
+		return value == INFINITY ?
+				Infinity
+			: value == NEG_INFINITY ?
+				-Infinity
+			: value == NAN ?
 				NaN
 			: value === EMPTY ?
 				undefined
