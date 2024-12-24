@@ -8,6 +8,7 @@
 * 		There should be two formats:
 * 			- pretty
 * 			- fast -- w/o pre-processing...
+* XXX should this be part of types.js???
 *
 **********************************************************************/
 ((typeof define)[0]=='u'?function(f){module.exports=f(require)}:define)
