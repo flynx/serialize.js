@@ -9,6 +9,7 @@
 * 			- pretty
 * 			- fast -- w/o pre-processing...
 * XXX should this be part of types.js???
+* 		...extend JSON or a separate object? (leaning towards the later)
 *
 **********************************************************************/
 ((typeof define)[0]=='u'?function(f){module.exports=f(require)}:define)
