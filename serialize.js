@@ -33,8 +33,14 @@ var NAN = '<< NAN >>'
 var INFINITY = '<< INFINITY >>'
 var NEG_INFINITY = '<< NEG_INFINITY >>'
 
+var FUNCTION = '<< FUNCTION >>'
+var FUNC_SEP = '\n---\n'
+var FUNCTION_PLACEHOLDER = '<< FUNCTION PLACEHOLDER >>'
+
+
 // XXX unify the output format... (???)
 // XXX handle formatting -- pass to JSON.stringify(..)...
+// XXX this does not support functions...
 var serialize = 
 module.serialize =
 function(value, raw=true){
@@ -60,13 +66,36 @@ function(value, raw=true){
 			for(var i=0; i < v.length; i++){
 				if(! (i in v)){
 					copy[i] = EMPTY } }
-			v = copy }
+			v = copy 
+		// function...
+		} else if(typeof(v) == 'function'){
+			if(raw instanceof Array){
+				raw.push(v)
+				return FUNCTION_PLACEHOLDER }
+			return raw ?
+				FUNCTION
+					+ '\n'
+					+ v.toString()
+					+ FUNC_SEP
+					+ serialize(
+						Object.fromEntries(
+							Object.entries(v)), 
+						raw) 
+				: v.name != '' ?
+					FUNCTION 
+						+ v.name
+						+ FUNCTION
+				: FUNCTION 
+					+ v.toString()
+	   				+ FUNCTION }
 		return v }
 
 	return raw ?
 		JSON.stringify(value, replacer)
 		: JSON.stringify(value, replacer)
 			// cleanup placeholders...	
+			.replace(new RegExp('"'+ FUNCTION +'(.*)'+ FUNCTION +'"', 'g'), '$1')
+			.replace(new RegExp('"'+ EMPTY +'"', 'g'), '<empty>')
 			.replace(new RegExp('"'+ EMPTY +'"', 'g'), '<empty>')
 			.replace(new RegExp('"'+ UNDEFINED +'"', 'g'), 'undefined')
 			.replace(new RegExp('"'+ INFINITY +'"', 'g'), 'Infinity')
@@ -83,12 +112,28 @@ function(value){
 // XXX this should pre-parse te string -- need to handle strings correctly...
 var deserialize = 
 module.deserialize =
-function(str){
+function(str, funcs){
 	var PLACEHOLDER = {}
+	var parseFunction = function(code){
+		var [code, attrs] = code.split(FUNC_SEP)
+		// XXX this is not safe...
+		// 		...need to parse function code into args and code...
+		var func = Function('return '+ code)()
+		attrs.trim() != '{}'
+			&& Object.assign(func, deserialize(attrs))
+		return func }
 	var reviver = function(key, value, context){
 		if(value == UNDEFINED){
 			return PLACEHOLDER }
-		return value == INFINITY ?
+		return typeof(value) == 'string'
+					&& value.startsWith(FUNCTION) ?
+				parseFunction(value
+					.slice(FUNCTION.length)
+					.trim())
+			: (value == FUNCTION_PLACEHOLDER 
+					&& funcs) ?
+				funcs.shift()
+			: value == INFINITY ?
 				Infinity
 			: value == NEG_INFINITY ?
 				-Infinity
@@ -112,6 +157,34 @@ function(str){
 
 	return cleanup(res) }
 
+
+
+//---------------------------------------------------------------------
+// colning...
+
+// NOTE: this will try and reconstruct functions from the input tree, 
+// 		this will work fine for simple functions but more complex cases
+// 		may yield unexpected results -- this is not done to full depth, 
+// 		as we only handle: 
+// 			- function code (as returned by .toString())
+// 			- attributes set on the function directly
+// 		if a function has a custom .__proto__ and/or data in its 
+// 		inheritance tree, such data is ignored.
+var deepCopy =
+module.deepCopy =
+function(obj){
+	return deserialize(
+		serialize(obj)) }
+
+// NOTE: this will not recreate functions, rather it will simply reref 
+// 		functions from the input to the output...
+var semiDeepCopy =
+module.semiDeepCopy =
+function(obj){
+	var funcs = []
+	return deserialize(
+		serialize(obji, funcs), 
+		funcs) }
 
 
 
