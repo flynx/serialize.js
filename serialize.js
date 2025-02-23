@@ -160,8 +160,13 @@ function(str, funcs){
 
 
 //---------------------------------------------------------------------
-// colning...
+// copying/colning...
 
+// Deep copy an object tree...
+//
+// This is similar to JSON.parse(JSON.stringify(..)) but uses deserialize 
+// and serialize.
+//
 // NOTE: this will try and reconstruct functions from the input tree, 
 // 		this will work fine for simple functions but more complex cases
 // 		may yield unexpected results -- this is not done to full depth, 
@@ -176,8 +181,9 @@ function(obj){
 	return deserialize(
 		serialize(obj)) }
 
-// NOTE: this will not recreate functions, rather it will simply reref 
-// 		functions from the input to the output...
+
+// This is the same as semiDeepCopy(..) but instead of recreating 
+// functions, it will simply rereference them from the input...
 var semiDeepCopy =
 module.semiDeepCopy =
 function(obj){
@@ -185,6 +191,7 @@ function(obj){
 	return deserialize(
 		serialize(obji, funcs), 
 		funcs) }
+
 
 
 
