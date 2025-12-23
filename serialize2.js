@@ -22,13 +22,26 @@ var RECURSIVE = '<RECURSIVE%>'
 //---------------------------------------------------------------------
 
 // XXX add support for pretty printing...
+// 		to do this correctly, need to track, thread indent and to 
+// 		correctly offset nested json sections...
 // XXX need to destinguish between map key and value in path...
 var serialize = 
 module.serialize = 
-function(obj, path=[], seen=new Map()){
+function(obj, path=[], seen=new Map(), space, indent=0){
+	// args...
+	var args = [...arguments].slice(1)
+	if(typeof(args[0]) == 'number'){
+		space = args.shift() }
+	if(typeof(args[0]) == 'number'){
+		indent = args.shift() }
+	;[path, seen] = args
+	path ??= []
+	seen ??= new Map()
+
 	// recursive...
 	var p = seen.get(obj)
 	if(p != null){
+		// NOTE: serialize(..) is always printed flat here, regardless of space/indent...
 		return RECURSIVE.replace('%', serialize(p)) }
 
 	// XXX functions...
@@ -38,15 +51,16 @@ function(obj, path=[], seen=new Map()){
 	if(obj === null){
 		return NULL }
 	if(typeof(obj) != 'object'){
-		return obj === undefined ?
-				UNDEFINED
-			: isNaN(obj) ?
+		return typeof(obj) == 'number' 
+					&& isNaN(obj) ?
 				NAN
+			: obj === undefined ?
+				UNDEFINED
 			: obj === Infinity ?
 				INFINITY
 			: obj === -Infinity ?
 				NEG_INFINITY
-			: JSON.stringify(obj) } 
+			: JSON.stringify(obj, null, space) } 
 
 	// objects...
 	seen.set(obj, path)
@@ -61,28 +75,36 @@ function(obj, path=[], seen=new Map()){
 		for(var i=0; i < obj.length; i++){
 			elems.push(
 				i in obj ?
-					serialize(obj[i], [...path, i], seen)
+					serialize(obj[i], [...path, i], seen, space, indent+1)
 					: EMPTY) }
 
 	} else if(obj instanceof Map){
 		pre = 'Map('
 		post = ')'
-		elems = [serialize([...obj], path, seen)]
+		elems = [serialize([...obj], path, seen, space, indent+1)]
 
 	} else if(obj instanceof Set){
 		pre = 'Set('
 		post = ')'
-		elems = [serialize([...obj], path, seen)]
+		elems = [serialize([...obj], path, seen, space, indent+1)]
 
 	} else {
 		pre = '{'
 		post = '}'
 		for(var [k, v] of Object.entries(obj)){
 			elems.push(`${ 
-					JSON.stringify(k) 
-				}:${ 
-					serialize(v, [...path, k], seen) 
+					JSON.stringify(k, null, space) 
+				}:${ space != null ? ' ' : '' }${ 
+					serialize(v, [...path, k], seen, space, indent+1).trimLeft()
 				}`) } }
+
+	// handle indent...
+	if(space != null){
+		i = ' '.repeat(indent * space)
+		s = i + ' '.repeat(space)
+		pre = i + pre + '\n' + s
+		post = '\n' + i + post
+		join = join + '\n' + s }
 
 	return pre+ elems.join(join) +post }
 
@@ -94,7 +116,7 @@ function(obj, path=[], seen=new Map()){
 var eJSON = 
 module.eJSON = {
 	chars: {
-		'"': 'string', "'": 'string',
+		'"': 'string', "'": 'string', '`': 'string', 
 
 		0: 'number', 1: 'number', 2: 'number', 3: 'number', 4: 'number',
 		5: 'number', 6: 'number', 7: 'number', 8: 'number', 9: 'number',
@@ -180,22 +202,30 @@ module.eJSON = {
 			j++ }
 		return [ str.slice(i, j)*1, j, line ] },
 	// XXX count \\n
-	// XXX handle \\<match>
 	string: function(state, path, match, str, i, line){
 		var j = i+1
 		while(j < str.length 
 				&& str[j] != match){
-			// XXX handle '\\n'.,.
 			if(str[j] == '\n'){
 				line++ }
+			// skip escaped quotes...
+			if(str[j] == '\\' 
+					&& j+1 < str.length 
+					&& str[j+1] == match){
+				j++ }
 			j++ }
 		if(j == str.length 
 				&& str[j-1] != match){
 			throw new SyntaxError('Unexpected end of input wile looking fot "'+ match +'".') }
 		return [ str.slice(i+1, j), j+1, line ] },
 	identifier: function(state, path, match, str, i, line){
-		// XXX
-	},
+		if(!/[a-zA-Z_]/.test(str[i])){
+			throw new SyntaxError('Not an identifier: "'+ str[i] +'"') }
+		var j = i+1
+		while(j < str.length 
+				&& /[a-zA-Z0-9_]/.test(str[j])){
+			j++ }
+		return [ str.slice(i, j), j, line ] },
 
 	// XXX method or func???
 	// XXX interface???
