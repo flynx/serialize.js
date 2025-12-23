@@ -22,31 +22,41 @@ var RECURSIVE = '<RECURSIVE%>'
 //---------------------------------------------------------------------
 
 //
-// 	serialize(obj[, space[, indent]])
+// 	serialize(obj[, indent[, depth]])
 // 		-> str
 //
-// 	serialize(obj, path, seen, space, indent)
+// 	indent can be:
+// 		number	- number of spaces to use for indent
+// 		string	- string to use for indenting
+//
+//
+// 	serialize(obj, path, seen, indent, depth)
 // 		-> str
 //
 // XXX add function support...
 // XXX need to destinguish between map key and value in path...
 var serialize = 
 module.serialize = 
-function(obj, path=[], seen=new Map(), space, indent=0){
+function(obj, path=[], seen=new Map(), indent, depth=0){
 	// args...
 	var args = [...arguments].slice(1)
-	if(typeof(args[0]) == 'number'){
-		space = args.shift() }
-	if(typeof(args[0]) == 'number'){
+	if(typeof(args[0]) == 'number' 
+			|| typeof(args[0]) == 'string'){
 		indent = args.shift() }
+	indent = typeof(indent) == 'number' ?
+		' '.repeat(indent)
+		: indent
+	if(typeof(args[0]) == 'number'){
+		depth = args.shift() }
 	;[path, seen] = args
 	path ??= []
 	seen ??= new Map()
 
+
 	// recursive...
 	var p = seen.get(obj)
 	if(p != null){
-		// NOTE: serialize(..) is always printed flat here, regardless of space/indent...
+		// NOTE: serialize(..) is always printed flat here, regardless of indent/depth...
 		return RECURSIVE.replace('%', serialize(p)) }
 
 	// XXX functions...
@@ -65,7 +75,7 @@ function(obj, path=[], seen=new Map(), space, indent=0){
 				INFINITY
 			: obj === -Infinity ?
 				NEG_INFINITY
-			: JSON.stringify(obj, null, space) } 
+			: JSON.stringify(obj, null, indent) } 
 
 	// objects...
 	seen.set(obj, path)
@@ -80,14 +90,14 @@ function(obj, path=[], seen=new Map(), space, indent=0){
 		for(var i=0; i < obj.length; i++){
 			elems.push(
 				i in obj ?
-					serialize(obj[i], [...path, i], seen, space, indent+1)
+					serialize(obj[i], [...path, i], seen, indent, depth+1)
 					: EMPTY) }
 
 	} else if(obj instanceof Map){
 		pre = 'Map(['
 		post = '])'
 		elems = [
-			serialize([...obj], path, seen, space, indent)
+			serialize([...obj], path, seen, indent, depth)
 				.slice(1, -1)
 				.trim() ]
 
@@ -95,7 +105,7 @@ function(obj, path=[], seen=new Map(), space, indent=0){
 		pre = 'Set(['
 		post = '])'
 		elems = [
-			serialize([...obj], path, seen, space, indent)
+			serialize([...obj], path, seen, indent, depth)
 				.slice(1, -1)
 				.trim() ]
 
@@ -105,16 +115,16 @@ function(obj, path=[], seen=new Map(), space, indent=0){
 		for(var [k, v] of Object.entries(obj)){
 			elems.push(`${ 
 					JSON.stringify(k) 
-				}:${ space != null ? ' ' : '' }${ 
-					serialize(v, [...path, k], seen, space, indent+1)
+				}:${ indent != null ? ' ' : '' }${ 
+					serialize(v, [...path, k], seen, indent, depth+1)
 						// relevant for pretty-printing only...
 						.trimLeft()
 				}`) } }
 
 	// handle indent...
-	if(space != null){
-		i = ' '.repeat(indent * space)
-		s = i + ' '.repeat(space)
+	if(indent != null){
+		i = indent.repeat(depth)
+		s = i + indent
 		if(elems.length > 0){
 			pre = pre + '\n' + s
 			post = '\n' + i + post
