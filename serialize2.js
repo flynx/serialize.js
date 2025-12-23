@@ -21,9 +21,13 @@ var RECURSIVE = '<RECURSIVE%>'
 
 //---------------------------------------------------------------------
 
-// XXX add support for pretty printing...
-// 		to do this correctly, need to track, thread indent and to 
-// 		correctly offset nested json sections...
+//
+// 	serialize(obj[, space[, indent]])
+// 		-> str
+//
+// 	serialize(obj, path, seen, space, indent)
+// 		-> str
+//
 // XXX need to destinguish between map key and value in path...
 var serialize = 
 module.serialize = 
@@ -79,32 +83,43 @@ function(obj, path=[], seen=new Map(), space, indent=0){
 					: EMPTY) }
 
 	} else if(obj instanceof Map){
-		pre = 'Map('
-		post = ')'
-		elems = [serialize([...obj], path, seen, space, indent+1)]
+		pre = 'Map(['
+		post = '])'
+		elems = [
+			serialize([...obj], path, seen, space, indent)
+				.slice(1, -1)
+				.trim() ]
 
 	} else if(obj instanceof Set){
-		pre = 'Set('
-		post = ')'
-		elems = [serialize([...obj], path, seen, space, indent+1)]
+		pre = 'Set(['
+		post = '])'
+		elems = [
+			serialize([...obj], path, seen, space, indent)
+				.slice(1, -1)
+				.trim() ]
 
 	} else {
 		pre = '{'
 		post = '}'
 		for(var [k, v] of Object.entries(obj)){
 			elems.push(`${ 
-					JSON.stringify(k, null, space) 
+					JSON.stringify(k) 
 				}:${ space != null ? ' ' : '' }${ 
-					serialize(v, [...path, k], seen, space, indent+1).trimLeft()
+					serialize(v, [...path, k], seen, space, indent+1)
+						// relevant for pretty-printing only...
+						.trimLeft()
 				}`) } }
 
 	// handle indent...
 	if(space != null){
 		i = ' '.repeat(indent * space)
 		s = i + ' '.repeat(space)
-		pre = i + pre + '\n' + s
-		post = '\n' + i + post
-		join = join + '\n' + s }
+		if(elems.length > 0){
+			pre = pre + '\n' + s
+			post = '\n' + i + post
+			// XXX set limit for number of elements to keep horizontal...
+			// 		...also account for element length...
+			join = join + '\n' + s } }
 
 	return pre+ elems.join(join) +post }
 
