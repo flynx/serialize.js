@@ -33,8 +33,11 @@ var RECURSIVE = '<RECURSIVE%>'
 // 	serialize(obj, path, seen, indent, depth)
 // 		-> str
 //
+//
 // XXX add function support...
 // XXX need to destinguish between map key and value in path...
+// XXX BUG: using non-whitespace as indent breaks the depth of the first 
+// 		element in sequences -- breaks .trim*() in Map/Set/Object...
 var serialize = 
 module.serialize = 
 function(obj, path=[], seen=new Map(), indent, depth=0){
@@ -43,9 +46,10 @@ function(obj, path=[], seen=new Map(), indent, depth=0){
 	if(typeof(args[0]) == 'number' 
 			|| typeof(args[0]) == 'string'){
 		indent = args.shift() }
-	indent = typeof(indent) == 'number' ?
-		' '.repeat(indent)
-		: indent
+	indent = 
+		typeof(indent) == 'number' ?
+			' '.repeat(indent)
+			: indent
 	if(typeof(args[0]) == 'number'){
 		depth = args.shift() }
 	;[path, seen] = args
