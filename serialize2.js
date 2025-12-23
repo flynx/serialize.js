@@ -28,6 +28,7 @@ var RECURSIVE = '<RECURSIVE%>'
 // 	serialize(obj, path, seen, space, indent)
 // 		-> str
 //
+// XXX add function support...
 // XXX need to destinguish between map key and value in path...
 var serialize = 
 module.serialize = 
