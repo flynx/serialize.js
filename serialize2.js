@@ -128,7 +128,9 @@ function(obj, path=[], seen=new Map(), space, indent=0){
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
+// XXX better error handling...
 // XXX add function support...
+// XXX try and make this single stage (see notes for : .recursive(..))
 var eJSON = 
 module.eJSON = {
 	chars: {
@@ -217,12 +219,18 @@ module.eJSON = {
 						&& str[j] <= '9'))){
 			j++ }
 		return [ str.slice(i, j)*1, j, line ] },
-	// XXX count \\n
+	// XXX TEST count \\n
 	string: function(state, path, match, str, i, line){
 		var j = i+1
 		while(j < str.length 
 				&& str[j] != match){
+			// newlines...
 			if(str[j] == '\n'){
+				line++ }
+			// escaped newlines...
+			if(str[j] == '\\' 
+					&& j+1 < str.length 
+					&& str[j+1] == 'n'){
 				line++ }
 			// skip escaped quotes...
 			if(str[j] == '\\' 
@@ -243,8 +251,6 @@ module.eJSON = {
 			j++ }
 		return [ str.slice(i, j), j, line ] },
 
-	// XXX method or func???
-	// XXX interface???
 	//
 	//	handler(res, index, str, i, line)
 	//		-> [res, i, line]
@@ -375,6 +381,7 @@ module.eJSON = {
 	// XXX another strategy would be to have an path-object map and 
 	// 		directly reference that -- this would eliminate the need for 
 	// 		stage two... (XXX TEST)
+	// 		...need to use serialized paths as keys...
 	recursive: function(state, path, match, str, i, line){
 		return this.sequence(
 			state, path, str, i+match.length, line, 
