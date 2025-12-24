@@ -97,7 +97,6 @@ function(obj, path=[], seen=new Map(), indent, depth=0){
 				i in obj ?
 					serialize(obj[i], [...path, i], seen, indent, depth+1)
 					: EMPTY) }
-
 	} else if(obj instanceof Map){
 		pre = 'Map(['
 		post = '])'
@@ -105,7 +104,6 @@ function(obj, path=[], seen=new Map(), indent, depth=0){
 			serialize([...obj], path, seen, indent, depth)
 				.slice(1, -1)
 				.trim() ]
-
 	} else if(obj instanceof Set){
 		pre = 'Set(['
 		post = '])'
@@ -113,7 +111,6 @@ function(obj, path=[], seen=new Map(), indent, depth=0){
 			serialize([...obj], path, seen, indent, depth)
 				.slice(1, -1)
 				.trim() ]
-
 	} else {
 		pre = '{'
 		post = '}'
@@ -146,6 +143,8 @@ function(obj, path=[], seen=new Map(), indent, depth=0){
 // XXX better error handling...
 // XXX add function support...
 // XXX try and make this single stage (see notes for : .recursive(..))
+// XXX BUG: deserialize('Set([1,2,3])') -> Set([3])
+// XXX BUG: deserialize('Map([[1,2],[3,4]])')) -> err
 var eJSON = 
 module.eJSON = {
 	chars: {
@@ -175,6 +174,23 @@ module.eJSON = {
 
 	// generic helpers...
 	//
+	// XXX need to keep the context constrained to one line...
+	context_size: 16,
+	error: function(msg, str, i, line){
+		var pre = i
+		var post = i
+		while(pre > 0 
+				&& i - pre <= this.context_size
+				&& str[pre] != '\n'){
+			pre-- }
+		while(post < str.length 
+				&& post - i <= this.context_size
+				&& str[post] != '\n'){
+			post++ }
+		throw new SyntaxError(`${ msg }\n`
+			+`    ${line}: ${ str.slice(pre, post) }\n`
+			+`    ${ ' '.repeat( i - pre + ((line + ': ').length) ) }^`) },
+
 	getItem: function(obj, path){
 		for(var k of path){
 			obj = obj instanceof Set ?
@@ -255,11 +271,11 @@ module.eJSON = {
 			j++ }
 		if(j == str.length 
 				&& str[j-1] != match){
-			throw new SyntaxError('Unexpected end of input wile looking fot "'+ match +'".') }
+			this.error('Unexpected end of input wile looking fot "'+ match +'".', str, i, line) }
 		return [ str.slice(i+1, j), j+1, line ] },
 	identifier: function(state, path, match, str, i, line){
 		if(!/[a-zA-Z_]/.test(str[i])){
-			throw new SyntaxError('Not an identifier: "'+ str[i] +'"') }
+			this.error('Not an identifier: "'+ str[i] +'"', str, i, line) }
 		var j = i+1
 		while(j < str.length 
 				&& /[a-zA-Z0-9_]/.test(str[j])){
@@ -307,7 +323,7 @@ module.eJSON = {
 			index++ }
 
 		// XXX better message -- show starting seq...
-		throw new SyntaxError('Unexpected end of input wile looking for "'+ end +'".') },
+		this.error('Unexpected end of input wile looking for "'+ end +'".', str, i, line) },
 
 	array: function(state, path, match, str, i, line){
 		return this.sequence(
@@ -332,8 +348,7 @@ module.eJSON = {
 				// ':'...
 				;[i, line] = this.skipWhitespace(str, i, line)
 				if(str[i] != ':'){
-					// XXX
-					throw new SyntaxError('Expected ":", got "'+ str[i] +'".') }
+					this.error('Expected ":", got "'+ str[i] +'".', str, i, line) }
 				i++
 				;[i, line] = this.skipWhitespace(str, i, line)
 
@@ -359,7 +374,7 @@ module.eJSON = {
 				return [res, i, line] },
 			new Set()) 
 		if(str[i] != ')'){
-			throw new SyntaxError('Expected ")", got "'+ str[i] +'".') }
+			this.error('Expected ")", got "'+ str[i] +'".', str, i, line) }
 		return [res, i, line] },
 	// XXX need to destinguish between key and value in path...
 	map: function(state, path, match, str, i, line){
@@ -379,7 +394,7 @@ module.eJSON = {
 				return [res, i, line] },
 			new Set()) 
 		if(str[i] != ')'){
-			throw new SyntaxError('Expected ")", got "'+ str[i] +'".') }
+			this.error('Expected ")", got "'+ str[i] +'".', str, i, line) }
 		return [res, i, line] },
 
 	// XXX should this be done inline or on a separate stage?
@@ -433,9 +448,7 @@ module.eJSON = {
 			var context = 8
 			var pre = Math.max(i-context, 0)
 			var post = Math.min(i+context, str.length)
-			throw new SyntaxError(`Unexpected: ${ str[i] } at:\n`
-				+`    ${line}: ..${ str.slice(pre, post) }..\n`
-				+`    ${ ' '.repeat( pre + ((line + ': ..').length) ) }^`) }
+			this.error(`Unexpected: ${ str[i] }`, str, i, line) }
 
 		// value...
 		if(typeof(handler) != 'string'){
