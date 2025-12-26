@@ -35,9 +35,10 @@ var setups = test.Setups({
 
 	'array-empty': function(assert){
 		return '[]' },
-	// XXX BUG: trailing <empty> gets duplicated...
 	'array-sparse': function(assert){
 		return '[<empty>,1,<empty>,<empty>,2,<empty>]' },
+	'array-recursive': function(assert){
+		return '[<RECURSIVE[]>]' },
 
 	'object-empty': function(assert){
 		return '{}' },
@@ -56,10 +57,14 @@ test.Modifiers({
 		return `[${ setup }]` },
 	'object-stuffed': function(assert, setup){
 		return `{"key":${ setup }}` },
+	//* XXX need better indexing...
+	//		.getItem(..) / .setItem(..) break on recursive structures 
+	//		in maps/sets...
 	'map-stuffed': function(assert, setup){
 		return `Map([["key",${ setup }],[${ setup },"value"]])` },
 	'set-stuffed': function(assert, setup){
 		return `Set([${ setup }])` },
+	//*/
 })
 
 test.Tests({
