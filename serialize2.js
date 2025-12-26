@@ -19,6 +19,24 @@ var RECURSIVE = '<RECURSIVE%>'
 
 
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+module.DEBUG = false
+
+var DEBUG_PREFIX = '---'
+
+var debug = {
+	context: 16,
+
+	log: function(...args){
+		if(!module.DEBUG){
+			return }
+		return console.log(DEBUG_PREFIX, ...arguments) },
+	lex: function(name, str, i, line){
+		return this.log(name +':', str.slice(i, i+this.context) +'...') },
+}
+
+
 //---------------------------------------------------------------------
 
 //
@@ -158,6 +176,9 @@ module.eJSON = {
 		'{': 'object',
 	},
 	words: {
+		true: true,
+		false: false,
+
 		Infinity: 'number',
 		
 		'Set(': 'set',
@@ -236,6 +257,7 @@ module.eJSON = {
 	//		-> [value, i, line]
 	//
 	number: function(state, path, match, str, i, line){
+		debug.lex('number', str, i, line)
 		// special cases..,
 		if(match == 'Infinity'){
 			return [Infinity, i, line] }
@@ -252,6 +274,7 @@ module.eJSON = {
 		return [ str.slice(i, j)*1, j, line ] },
 	// XXX TEST count \\n
 	string: function(state, path, match, str, i, line){
+		debug.lex('string', str, i, line)
 		var j = i+1
 		while(j < str.length 
 				&& str[j] != match){
@@ -274,6 +297,7 @@ module.eJSON = {
 			this.error('Unexpected end of input wile looking fot "'+ match +'".', str, i, line) }
 		return [ str.slice(i+1, j), j+1, line ] },
 	identifier: function(state, path, match, str, i, line){
+		debug.lex('identifier', str, i, line)
 		if(!/[a-zA-Z_]/.test(str[i])){
 			this.error('Not an identifier: "'+ str[i] +'"', str, i, line) }
 		var j = i+1
@@ -303,7 +327,7 @@ module.eJSON = {
 				initial instanceof Array
 					&& initial.length++
 				continue }
-			if(str.slice(i, EMPTY.length) == EMPTY){
+			if(str.slice(i, i+EMPTY.length) == EMPTY){
 				i += EMPTY.length
 				// XXX this feels hackish -- can this be deligated to the handler???
 				initial instanceof Array
@@ -326,6 +350,7 @@ module.eJSON = {
 		this.error('Unexpected end of input wile looking for "'+ end +'".', str, i, line) },
 
 	array: function(state, path, match, str, i, line){
+		debug.lex('array', str, i, line)
 		return this.sequence(
 			state, path, str, i+1, line, 
 			']',
@@ -335,6 +360,7 @@ module.eJSON = {
 				res[index] = obj
 				return [res, i, line] }) },
 	object: function(state, path, match, str, i, line){
+		debug.lex('object', str, i, line)
 		return this.sequence(
 			state, path, str, i+1, line, 
 			'}',
@@ -359,6 +385,7 @@ module.eJSON = {
 			{}) },
 
 	set: function(state, path, match, str, i, line){
+		debug.lex('set', str, i, line)
 		i += match.length
 		;[res, i, line] = this.sequence(
 			state, path, 
@@ -369,33 +396,35 @@ module.eJSON = {
 				;[obj, i, line] = this.value(
 					state, 
 					[...path, index], 
-					str, i+match.length, line)
+					str, i, line)
 				res.add(obj)
 				return [res, i, line] },
 			new Set()) 
 		if(str[i] != ')'){
 			this.error('Expected ")", got "'+ str[i] +'".', str, i, line) }
-		return [res, i, line] },
+		return [res, i+1, line] },
 	// XXX need to destinguish between key and value in path...
 	map: function(state, path, match, str, i, line){
+		debug.lex('map', str, i, line)
 		i += match.length
 		;[res, i, line] = this.sequence(
 			state, path, 
 			str, i+1, line, 
 			']',
 			function(res, index, str, i, line){
+				debug.lex('    map-content', str, i, line)
 				var obj
 				;[[key, value], i, line] = this.value(
 					state, 
 					// XXX need a way to index path or value...
 					[...path, index], 
-					str, i+match.length, line)
+					str, i, line)
 				res.set(key, value)
 				return [res, i, line] },
-			new Set()) 
+			new Map()) 
 		if(str[i] != ')'){
 			this.error('Expected ")", got "'+ str[i] +'".', str, i, line) }
-		return [res, i, line] },
+		return [res, i+1, line] },
 
 	// XXX should this be done inline or on a separate stage?
 	// 		for inline we need these:
@@ -413,6 +442,7 @@ module.eJSON = {
 	// 		stage two... (XXX TEST)
 	// 		...need to use serialized paths as keys...
 	recursive: function(state, path, match, str, i, line){
+		debug.lex('recursive', str, i, line)
 		return this.sequence(
 			state, path, str, i+match.length, line, 
 			'>',
@@ -428,6 +458,7 @@ module.eJSON = {
 	},
 
 	value: function(state, path, str, i=0, line=0){
+		//debug.lex('value', str, i, line)
 
 		;[i, line] = this.skipWhitespace(str, i, line)
 
