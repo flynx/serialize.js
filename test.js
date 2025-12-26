@@ -37,7 +37,7 @@ var setups = test.Setups({
 		return '[]' },
 	// XXX BUG: trailing <empty> gets duplicated...
 	'array-sparse': function(assert){
-		return '[1,<empty>,<empty>,2,<empty>]' },
+		return '[<empty>,1,<empty>,<empty>,2,<empty>]' },
 
 	'object-empty': function(assert){
 		return '{}' },

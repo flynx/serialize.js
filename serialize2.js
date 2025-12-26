@@ -328,7 +328,10 @@ module.eJSON = {
 					&& initial.length++
 				continue }
 			if(str.slice(i, i+EMPTY.length) == EMPTY){
+				index++
 				i += EMPTY.length
+				if(str[i] == ','){
+					i++ }
 				// XXX this feels hackish -- can this be deligated to the handler???
 				initial instanceof Array
 					&& initial.length++
