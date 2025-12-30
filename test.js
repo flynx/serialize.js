@@ -16,9 +16,26 @@ var eJSON = require('./serialize2')
 //---------------------------------------------------------------------
 // XXX split into pure and extended JSON...
 
+// XXX test whitespace handling...
 var setups = test.Setups({
 	number: function(assert){
 		return '123' },
+	'float-a': function(assert){
+		return '0.123' },
+	'float-b': function(assert){
+		return '1.23' },
+	// XXX need a way to test this...
+	//'float-a': function(assert){
+	//	return '.123' },
+	//'float-c': function(assert){
+	//	return '123.' },
+	// XXX also test:
+	// 		hex/bin/orc/...
+	Infinity: function(assert){
+		return 'Infinity' },
+	nInfinity: function(assert){
+		return '-Infinity' },
+	// XXX also test diffrerent quotations...
 	string: function(assert){
 		return '"string"' },
 	'true': function(assert){
@@ -35,7 +52,13 @@ var setups = test.Setups({
 
 	'array-empty': function(assert){
 		return '[]' },
-	'array-sparse': function(assert){
+	'array-sparse-a': function(assert){
+		return '[<empty>]' },
+	'array-sparse-b': function(assert){
+		return '["a",<empty>]' },
+	'array-sparse-c': function(assert){
+		return '[<empty>,"a"]' },
+	'array-sparse-d': function(assert){
 		return '[<empty>,1,<empty>,<empty>,2,<empty>]' },
 	'array-recursive': function(assert){
 		return '[<RECURSIVE[]>]' },
@@ -53,16 +76,23 @@ var setups = test.Setups({
 })
 
 test.Modifiers({
+	// NOTE: we are not simply editing strings as we'll need to also 
+	// 		update all the recursion paths which is not trivial...
 	'array-stuffed': function(assert, setup){
-		return `[${ setup }]` },
+		return eJSON.serialize( 
+			[ eJSON.deserialize(setup) ] ) },
 	'object-stuffed': function(assert, setup){
-		return `{"key":${ setup }}` },
+		return eJSON.serialize( 
+			{ key: eJSON.deserialize(setup) } ) },
 	'set-stuffed': function(assert, setup){
-		return `Set([${ setup }])` },
+		return eJSON.serialize( 
+			new Set([ eJSON.deserialize(setup) ]) ) },
 	'map-key-stuffed': function(assert, setup){
-		return `Map([[${ setup },"value"]])` },
+		return eJSON.serialize( 
+			new Map([[eJSON.deserialize(setup), "value"]]) ) },
 	'map-value-stuffed': function(assert, setup){
-		return `Map([["key",${ setup }]])` },
+		return eJSON.serialize( 
+			new Map([["key", eJSON.deserialize(setup)]]) ) },
 })
 
 test.Tests({

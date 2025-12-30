@@ -347,10 +347,10 @@ module.eJSON = {
 		debug.lex('number', str, i, line)
 		// special cases..,
 		if(match == 'Infinity'){
-			return [Infinity, i, line] }
+			return [Infinity, i+'Infinity'.length, line] }
 		if(match == '-' 
-				&& str.slice(i, 'Infinity'.length) == 'Infinity'){
-			return [-Infinity, i+'Infinity'.length, line] }
+				&& str.slice(i, i+'-Infinity'.length) == '-Infinity'){
+			return [-Infinity, i+'-Infinity'.length, line] }
 		// numbers...
 		var j = i+1
 		while(j < str.length
