@@ -212,14 +212,41 @@ module.eJSON = {
 			+`    ${line}: ${ str.slice(pre, post) }\n`
 			+`    ${ ' '.repeat( i - pre + ((line + ': ').length) ) }^`) },
 
-	getItem: function(obj, path){
-		for(var k of path){
+	//
+	// 	._getItem(obj, path)
+	// 		-> [path, obj]
+	//
+	// NOTE: we are returning path here because we need to distinguish 
+	// 		incomplete paths that we can infer the container from and 
+	// 		complete paths, e.g:
+	// 			For
+	// 				m = [new Map([[1,2], [2,3]])]
+	// 			Both of the below will return the map and the correct path ([0]):
+	// 				eJSON._getItem(m, [0, 1])
+	// 				eJSON._getItem(m, [0])
+	// 			But we need to destinguish between the two cases when 
+	// 			writing to a map (see: .setItem(..))
+	_getItem: function(obj, path){
+		for(var i=0; i<path.length; i++){
+			var k = path[i]
+			// speacial case: incomplete map index...
+			if( obj instanceof Map 
+					&& i == path.length-1){
+				return [path.slice(0, -1), obj] }
+
 			obj = obj instanceof Set ?
 					[...obj][k]
 				: obj instanceof Map ?
-					obj.get(k)
+					[...obj][k][path[++i]]
 				: obj[k] }
-		return obj },
+		return [path, obj] },
+	//
+	// 	.getItem(obj, path)
+	// 		-> obj
+	//
+	// NOTE: this is a POLS wrapper of ._getItem(..)
+	getItem: function(obj, path){
+		return this._getItem(...arguments)[1] },
 	// NOTE: this behaves in a similar way to normal key value assignment,
 	// 		i.e. replacing items if they exist, this is not a problem here 
 	// 		as in the general case we are assigning over a placeholder 
@@ -227,16 +254,32 @@ module.eJSON = {
 	// NOTE: as a side-effect this maintains element oreder even in object
 	// 		with no direct concept of element order, like objects, sets and
 	// 		maps.
+	// NOTE: some operations envolve rewriting the container elements so 
+	// 		are not as fast, namely writing set elements and map keys.
 	setItem: function(obj, path, value){
-		var parent = this.getItem(obj, path.slice(0, -1))
+		var [p, parent] = this._getItem(obj, path.slice(0, -1))
 		var k = path.at(-1)
-		if(obj instanceof Set){
+		if(parent instanceof Set){
 			var elems = [...parent]
 			elems[k] = obj
+			// we cant to keep the order...
+			parent.clear()
 			for(var e of elems){
 				parent.add(e) }
-		} else if(obj instanceof Map){
-			parent.set(k, value)
+		} else if(parent instanceof Map){
+			if(path.length-2 !== p.length){
+				throw new Error('.setItem(..): incomplete path.') }
+			var i = path.at(-2)
+			// replace the index...
+			if(k == 0){
+				var elems = [...parent]
+				elems[i][0] = value
+				parent.clear()
+				for(var e of elems){
+					parent.set(...e) }
+			// set the value...
+			} else {
+				parent.set([...parent][i][0], value) }
 		} else {
 			parent[k] = value }
 		return value },

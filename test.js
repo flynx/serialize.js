@@ -72,7 +72,7 @@ test.Tests({
 		var res
 		assert(
 			setup == (res = eJSON.serialize(eJSON.deserialize(setup))), 
-			'serialize(deserialize( setup )) == setup: expected:', setup, 'got:', res) },
+				'serialize(deserialize( setup )) == setup: expected:', setup, 'got:', res) },
 
 })
 

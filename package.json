@@ -18,6 +18,6 @@
   },
   "homepage": "https://github.com/flynx/serialize.js#readme",
   "dependencies": {
-    "ig-test": "^1.5.9"
+    "ig-test": "^1.6.*"
   }
 }
