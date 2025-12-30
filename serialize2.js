@@ -48,8 +48,52 @@ var debug = {
 // 		string	- string to use for indenting
 //
 //
-// 	serialize(obj, path, seen, indent, depth)
+// 	serialize(obj, base_path, seen, indent, depth)
 // 		-> str
+//
+//
+// Paths
+// 	A path is a chain of indexes/keys leading to a specific object in 
+// 	tree.
+//
+// 	the root object is referenced by an empty path array.
+//
+// 	For sets, positional indexes are used, i.e. a set is treated like 
+// 	an array ov values.
+//
+// 	For maps a two number index is used with the first being the position
+// 	of the item and the second indicated if the target is the key or the 
+// 	value. i.e. a map is treated like an array of key value pairs.
+//
+//
+// 	Examples:
+// 		Object						   paths
+// 		---------------------------------------------------------------
+// 		obj = [						<- []
+// 			null,					<- [0]
+// 			[
+// 				'a', 
+// 				'b', 				<- [1, 1]
+// 				'c',
+// 			],
+// 			Set([ 
+// 				1, 
+// 				2, 
+// 				3,					<- [2, 2]
+// 			]),
+// 			Map([i					<- [3]   +----- index of elemnt in map
+// 				[							/  +--- 0 means key
+// 					'key',			<- [3, 0, 0]
+// 					'value'			<- [3, 0, 1]
+// 				],                             +--- 1 means value
+// 				[
+// 					[
+// 						123			<- [3, 1, 0, 0]
+// 					],
+// 					'got tired of thinking up names',
+// 				],
+// 			]),
+// 		]
 //
 //
 // XXX add function support...

@@ -57,14 +57,12 @@ test.Modifiers({
 		return `[${ setup }]` },
 	'object-stuffed': function(assert, setup){
 		return `{"key":${ setup }}` },
-	//* XXX need better indexing...
-	//		.getItem(..) / .setItem(..) break on recursive structures 
-	//		in maps/sets...
-	'map-stuffed': function(assert, setup){
-		return `Map([["key",${ setup }],[${ setup },"value"]])` },
 	'set-stuffed': function(assert, setup){
 		return `Set([${ setup }])` },
-	//*/
+	'map-key-stuffed': function(assert, setup){
+		return `Map([[${ setup },"value"]])` },
+	'map-value-stuffed': function(assert, setup){
+		return `Map([["key",${ setup }]])` },
 })
 
 test.Tests({
