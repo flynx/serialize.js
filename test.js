@@ -99,7 +99,7 @@ test.Tests({
 	'self-apply': function(assert, setup){
 		var res
 		assert(
-			setup == (res = eJSON.serialize(eJSON.deserialize(setup))), 
+			setup == (res = eJSON.serialize( eJSON.deserialize(setup) ) ), 
 				'serialize(deserialize( setup )) == setup: expected:', setup, 'got:', res) },
 
 })
