@@ -16,14 +16,21 @@ var eJSON = require('./serialize2')
 //---------------------------------------------------------------------
 // XXX split into pure and extended JSON...
 
+var json = true
+var ejson = false
+
 // XXX test whitespace handling...
 var setups = test.Setups({
 	number: function(assert){
-		return '123' },
+		return [json, '123'] },
+	'number-neg': function(assert){
+		return [json, '-123'] },
+	'number-zero': function(assert){
+		return [json, '0'] },
 	'float-a': function(assert){
-		return '0.123' },
+		return [json, '0.123'] },
 	'float-b': function(assert){
-		return '1.23' },
+		return [json, '1.23'] },
 	// XXX need a way to test this...
 	//'float-a': function(assert){
 	//	return '.123' },
@@ -32,45 +39,45 @@ var setups = test.Setups({
 	// XXX also test:
 	// 		hex/bin/orc/...
 	Infinity: function(assert){
-		return 'Infinity' },
+		return [ejson, 'Infinity'] },
 	nInfinity: function(assert){
-		return '-Infinity' },
+		return [ejson, '-Infinity'] },
 	// XXX also test diffrerent quotations...
 	string: function(assert){
-		return '"string"' },
+		return [json, '"string"'] },
 	'true': function(assert){
-		return 'true' },
+		return [json, 'true'] },
 	'false': function(assert){
-		return 'false' },
+		return [json, 'false'] },
 
 	'null': function(assert){
-		return 'null' },
+		return [json, 'null'] },
 	'undefined': function(assert){
-		return 'undefined' },
+		return [ejson, 'undefined'] },
 	'NaN': function(assert){
-		return 'NaN' },
+		return [ejson, 'NaN'] },
 
 	'array-empty': function(assert){
-		return '[]' },
+		return [json, '[]'] },
 	'array-sparse-a': function(assert){
-		return '[<empty>]' },
+		return [ejson, '[<empty>]'] },
 	'array-sparse-b': function(assert){
-		return '["a",<empty>]' },
+		return [ejson, '["a",<empty>]'] },
 	'array-sparse-c': function(assert){
-		return '[<empty>,"a"]' },
+		return [ejson, '[<empty>,"a"]'] },
 	'array-sparse-d': function(assert){
-		return '[<empty>,1,<empty>,<empty>,2,<empty>]' },
+		return [ejson, '[<empty>,1,<empty>,<empty>,2,<empty>]'] },
 	'array-recursive': function(assert){
-		return '[<RECURSIVE[]>]' },
+		return [ejson, '[<RECURSIVE[]>]'] },
 
 	'object-empty': function(assert){
-		return '{}' },
+		return [json, '{}'] },
 
 	'set-empty': function(assert){
-		return 'Set([])' },
+		return [ejson, 'Set([])'] },
 
 	'map-empty': function(assert){
-		return 'Map([])' },
+		return [ejson, 'Map([])'] },
 
 	// XXX
 })
@@ -78,30 +85,52 @@ var setups = test.Setups({
 test.Modifiers({
 	// NOTE: we are not simply editing strings as we'll need to also 
 	// 		update all the recursion paths which is not trivial...
-	'array-stuffed': function(assert, setup){
-		return eJSON.serialize( 
-			[ eJSON.deserialize(setup) ] ) },
-	'object-stuffed': function(assert, setup){
-		return eJSON.serialize( 
-			{ key: eJSON.deserialize(setup) } ) },
-	'set-stuffed': function(assert, setup){
-		return eJSON.serialize( 
-			new Set([ eJSON.deserialize(setup) ]) ) },
-	'map-key-stuffed': function(assert, setup){
-		return eJSON.serialize( 
-			new Map([[eJSON.deserialize(setup), "value"]]) ) },
-	'map-value-stuffed': function(assert, setup){
-		return eJSON.serialize( 
-			new Map([["key", eJSON.deserialize(setup)]]) ) },
+	'array-stuffed': function(assert, [json, setup]){
+		return [
+			json, 
+			eJSON.serialize( 
+				[ eJSON.deserialize(setup) ] ),
+		] },
+	'object-stuffed': function(assert, [json, setup]){
+		return [
+			json, 
+			eJSON.serialize( 
+				{ key: eJSON.deserialize(setup) } ) 
+		] },
+	'set-stuffed': function(assert, [json, setup]){
+		return [
+			ejson, 
+			eJSON.serialize( 
+				new Set([ eJSON.deserialize(setup) ]) ) 
+		] },
+	'map-key-stuffed': function(assert, [json, setup]){
+		return [
+			ejson, 
+			eJSON.serialize( 
+				new Map([[eJSON.deserialize(setup), "value"]]) ) 
+		] },
+	'map-value-stuffed': function(assert, [json, setup]){
+		return [
+			ejson, 
+			eJSON.serialize( 
+				new Map([["key", eJSON.deserialize(setup)]]) ) 
+		] },
 })
 
 test.Tests({
-	'self-apply': function(assert, setup){
+	'self-apply': function(assert, [json, setup]){
 		var res
 		assert(
 			setup == (res = eJSON.serialize( eJSON.deserialize(setup) ) ), 
 				'serialize(deserialize( setup )) == setup: expected:', setup, 'got:', res) },
 
+	'json-caopatiility': function(assert, [json, setup]){
+		if(!json){
+			return }
+		var obj = eJSON.deserialize(setup)
+		var json, ejson
+		assert((json = JSON.stringify(obj)) == (ejson = eJSON.serialize(obj)) )
+	},
 })
 
 
