@@ -203,10 +203,7 @@ function(obj, indent, depth=0, functions){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 // XXX better error handling...
-// XXX add function support...
 // XXX try and make this single stage (see notes for : .recursive(..))
-// XXX BUG: deserialize('Set([1,2,3])') -> Set([3])
-// XXX BUG: deserialize('Map([[1,2],[3,4]])')) -> err
 var eJSON = 
 module.eJSON = {
 	chars: {
@@ -495,7 +492,6 @@ module.eJSON = {
 		if(str[i] != ')'){
 			this.error('Expected ")", got "'+ str[i] +'".', str, i, line) }
 		return [res, i+1, line] },
-	// XXX need to destinguish between key and value in path...
 	map: function(state, path, match, str, i, line){
 		debug.lex('map', str, i, line)
 		i += match.length
@@ -508,7 +504,6 @@ module.eJSON = {
 				var obj
 				;[[key, value], i, line] = this.value(
 					state, 
-					// XXX need a way to index path or value...
 					[...path, index], 
 					str, i, line)
 				res.set(key, value)
@@ -545,8 +540,7 @@ module.eJSON = {
 				rec.push([path, obj])
 				return [{}, i, line] }) },
 
-	// XXX disable this by default...
-	// XXX can we avoid eval here???
+	// NOTE: this uses eval(..) so care must be taken when enabling this...
 	func: function(state, path, match, str, i, line){
 		if(state.functions == null){
 			this.error('Deserializing functions disabled.', str, i, line) }
@@ -577,7 +571,6 @@ module.eJSON = {
 		return [res, i+2, line] },
 
 	value: function(state, path, str, i=0, line=0){
-		//debug.lex('value', str, i, line)
 
 		;[i, line] = this.skipWhitespace(str, i, line)
 
@@ -628,7 +621,7 @@ function(str, functions){
 
 
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+//---------------------------------------------------------------------
 // utils...
 
 var deepCopy =
