@@ -28,6 +28,17 @@ var ejson = false
 
 // XXX test whitespace handling...
 var setups = test.Setups({
+	'true': function(assert){
+		return ['true', json] },
+	'false': function(assert){
+		return ['false', json] },
+	'null': function(assert){
+		return ['null', json] },
+	'undefined': function(assert){
+		return ['undefined'] },
+	'NaN': function(assert){
+		return ['NaN'] },
+
 	number: function(assert){
 		return ['123', json] },
 	'number-neg': function(assert){
@@ -49,20 +60,10 @@ var setups = test.Setups({
 		return ['Infinity'] },
 	nInfinity: function(assert){
 		return ['-Infinity'] },
+
 	// XXX also test diffrerent quotations...
 	string: function(assert){
 		return ['"string"', json] },
-	'true': function(assert){
-		return ['true', json] },
-	'false': function(assert){
-		return ['false', json] },
-
-	'null': function(assert){
-		return ['null', json] },
-	'undefined': function(assert){
-		return ['undefined'] },
-	'NaN': function(assert){
-		return ['NaN'] },
 
 	'array-empty': function(assert){
 		return ['[]', json] },
@@ -74,8 +75,6 @@ var setups = test.Setups({
 		return ['[<empty>,"a"]'] },
 	'array-sparse-d': function(assert){
 		return ['[<empty>,1,<empty>,<empty>,2,<empty>]'] },
-	'array-recursive': function(assert){
-		return ['[<RECURSIVE[]>]'] },
 
 	'object-empty': function(assert){
 		return ['{}', json] },
@@ -86,7 +85,21 @@ var setups = test.Setups({
 	'map-empty': function(assert){
 		return ['Map([])'] },
 
-	// XXX
+	'function': function(assert){
+		return ['<FUNCTION[14,(function(){})]>'] },
+
+	// recursive...
+	'array-recursive': function(assert){
+		return ['[<RECURSIVE[]>]'] },
+	'object-recursive': function(assert){
+		return ['{"r":<RECURSIVE[]>}'] },
+	'set-recursive': function(assert){
+		return ['Set([<RECURSIVE[]>])'] },
+	'map-recursive-key': function(assert){
+		return ['Map([[<RECURSIVE[]>,"value"]])'] },
+	'map-recursive-value': function(assert){
+		return ['Map([["key",<RECURSIVE[]>]])'] },
+
 })
 
 test.Modifiers({
@@ -95,32 +108,32 @@ test.Modifiers({
 	'array-stuffed': function(assert, [setup, json]){
 		return [
 			eJSON.serialize( 
-				[ eJSON.deserialize(setup) ] ),
+				[ eJSON.deserialize(setup, true) ] ),
 			json, 
 		] },
 	'object-stuffed': function(assert, [setup, json]){
 		return [
 			eJSON.serialize( 
-				{ key: eJSON.deserialize(setup) } ),
+				{ key: eJSON.deserialize(setup, true) } ),
 			json, 
 		] },
 	// NOTE: these explicitly remove JSON compatibility regardless of input...
 	'set-stuffed': function(assert, [setup]){
 		return [
 			eJSON.serialize( 
-				new Set([ eJSON.deserialize(setup) ]) ),
+				new Set([ eJSON.deserialize(setup, true) ]) ),
 			ejson, 
 		] },
 	'map-key-stuffed': function(assert, [setup]){
 		return [
 			eJSON.serialize( 
-				new Map([[eJSON.deserialize(setup), "value"]]) ),
+				new Map([[eJSON.deserialize(setup, true), "value"]]) ),
 			ejson, 
 		] },
 	'map-value-stuffed': function(assert, [setup]){
 		return [
 			eJSON.serialize( 
-				new Map([["key", eJSON.deserialize(setup)]]) ),
+				new Map([["key", eJSON.deserialize(setup, true)]]) ),
 			ejson, 
 		] },
 })
@@ -129,14 +142,14 @@ test.Tests({
 	'self-apply': function(assert, [setup]){
 		var res
 		assert(
-			setup == (res = eJSON.serialize( eJSON.deserialize(setup) ) ), 
+			setup == (res = eJSON.serialize( eJSON.deserialize(setup, true) ) ), 
 				'serialize(deserialize( setup )) == setup: expected:', setup, 'got:', res) },
 
 	'json-caopatiility': function(assert, [setup, json], skipTest){
 		if(!json){
 			skipTest()
 			return }
-		var obj = eJSON.deserialize(setup)
+		var obj = eJSON.deserialize(setup, true)
 		assert(
 			JSON.stringify(obj) == eJSON.serialize(obj) ) },
 })
