@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "description": "experimental extended json serializaion...",
   "main": "serialize.js",
+  "scripts": {
+    "test": "c8 node ./test.js -m 2",
+    "cover": "c8 -r text -r lcov node ./test.js -m 2",
+    "prepublishOnly": "npm test"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/flynx/serialize.js"
@@ -18,6 +23,7 @@
   },
   "homepage": "https://github.com/flynx/serialize.js#readme",
   "devDependencies": {
+    "c8": "^7.4.0",
     "ig-test": "^1.6.*"
   }
 }
