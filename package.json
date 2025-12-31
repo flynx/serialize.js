@@ -1,6 +1,6 @@
 {
   "name": "ig-serialize",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "experimental extended json serializaion...",
   "main": "serialize.js",
   "repository": {
@@ -17,7 +17,7 @@
     "url": "https://github.com/flynx/serialize.js/issues"
   },
   "homepage": "https://github.com/flynx/serialize.js#readme",
-  "dependencies": {
+  "devDependencies": {
     "ig-test": "^1.6.*"
   }
 }

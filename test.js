@@ -10,7 +10,7 @@
 
 var test = require('ig-test')
 
-var eJSON = require('./serialize2')
+var eJSON = require('./serialize')
 
 
 //---------------------------------------------------------------------
