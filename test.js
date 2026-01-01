@@ -26,6 +26,8 @@ var eJSON = require('./serialize')
 var json = true
 var ejson = false
 
+var pre_cycle = true
+
 // XXX test whitespace handling...
 var setups = test.Setups({
 	'true': function(assert){
@@ -53,9 +55,9 @@ var setups = test.Setups({
 		return ['999999999999999999999n'] },
 	// XXX need a way to test this...
 	//'float-a': function(assert){
-	//	return '.123' },
+	//	return ['.123'] },
 	//'float-c': function(assert){
-	//	return '123.' },
+	//	return ['123.'] },
 	// XXX also test:
 	// 		hex/bin/orc/...
 	Infinity: function(assert){
@@ -179,17 +181,47 @@ test.Tests({
 	//*/
 })
 
-/* XXX these break things...
 test.Cases({
+	/* XXX for some magical reason hese break as soon as we add [setup] to arguments...
 	'deep-copy-function': function(assert, [setup]){
 		// XXX check function isolation...
 	},
+	//*/
 
-	'partial-deep-copy-function': function(assert, [setup]){
+	// NOTE: these syntax variants are not output by .serialize(..) this it
+	// 		is less critical to test them in the main loop.
+	// 		XXX though it would be nice to do so...
+	tests: [
+		// numbers/floats...
+		['.123', '0.123'],
+		['123.', '123'],
+
+		// string quotes...
+		['"abc"', "'abc'"],
+		['"abc"', '`abc`'],
+
+		// arrays...
+		['[1,2,]', '[1,2]'],
+
+		// sparse arrays...
+		['[<empty>]', '[,]'],
+		['[1,2,<empty>]', '[1,2,,]'],
+		['[1,2,<empty>]', '[1,2,<empty>,]'],
+	],
+	'syntax-simplifications': function(assert){
+		var aa, bb
+		for(var [a, b] of this.tests){
+			assert(eJSON.serialize(aa = eJSON.deserialize(a)) == eJSON.serialize(bb = eJSON.deserialize(b)),
+				`"${ a }" and "${ b }" should deserialize to the samve value.`,
+					'got:', aa, 'and', bb, 'resp.') } },
+
+	'deep-copy-function': function(assert){
+		// XXX check function isolation...
+	},
+	'partial-deep-copy-function': function(assert){
 		// XXX check function isolation...
 	},
 })
-//*/
 
 
 //---------------------------------------------------------------------

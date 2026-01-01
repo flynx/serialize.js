@@ -11,5 +11,44 @@ This extends the default JSON serialization adding the following:
 
 ## Motivation
 
+This was originally built as a companion to a testing module for a 
+programming class, illustrating several concepts, including: guaranteed 
+clean isolation of data structures via serialization, instrumenting code 
+and tooling design, basic parsing, among others.
+
+
+
+## Installation
+
+
+## Introduction
+
+
+### Serializing functions
+
+Due to how JavaScript is designed it is not possible to trivially and 
+fully clone a function with all of it's references, `.serilaize(..)` will
+not attempt to clone any state a function may have, this will lead to 
+loosing:
+
+- Function closure
+- Attributes set on the function or any of it's prototypes, including the
+  `.__proto__` value if it was changed.
+ 
+Thus, care must be taken when serializing structures containing function.
+
+
+## API
+
+### `serialize(..)` / `eJSON.stringify(..)`
+
+### `deserialize(..)` / 'eJSON.parse(..)'
+
+### `deepCopy(..)`
+
+### `partialDeepCopy(..)`
+
+
+
 
 
