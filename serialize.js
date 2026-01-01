@@ -636,6 +636,9 @@ module.eJSON = {
 			this.setItem(res, a, this.getItem(res, b)) }
 
 		return res },
+
+	// to comply with POLS...
+	stringify: serialize,
 }
 
 
