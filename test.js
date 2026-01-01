@@ -68,6 +68,9 @@ var setups = test.Setups({
 	// XXX also test diffrerent quotations...
 	string: function(assert){
 		return ['"string"', json] },
+	// XXX ERR this breaks...
+	'string-multiline': function(assert){
+		return ['"string\\nstring\\nstring"', json] },
 
 	'array-empty': function(assert){
 		return ['[]', json] },
