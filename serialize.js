@@ -117,7 +117,7 @@ function(obj, path=[], seen=new Map(), indent, depth=0, functions){
 		seen.set(obj, path)
 		// if functions array is given add function to it and store its
 		// index in the serialized data...
-		if(functions != null){
+		if(functions instanceof Array){
 			functions.push(obj) 
 			obj = functions.length-1 }
 		var s = '('+ obj.toString() +')'
@@ -543,6 +543,7 @@ module.eJSON = {
 	// NOTE: this uses eval(..) so care must be taken when enabling this...
 	func: function(state, path, match, str, i, line){
 		if(state.functions == null){
+			console.log('---', state)
 			this.error('Deserializing functions disabled.', str, i, line) }
 
 		debug.lex('function', str, i, line)
@@ -558,6 +559,9 @@ module.eJSON = {
 		if(state.functions instanceof Array){
 			var [n, i, line] = this.number(state, path, str[i+1], str, i+1, line)
 			res = state.functions[n]
+			if(str[i] != ')'){
+				this.error('Expected ")" got "'+ str[i] +'"', str, i, line) }
+			i++
 		// func code...
 		} else {
 			var code = str.slice(i, i+l)
@@ -626,15 +630,15 @@ function(str, functions){
 
 var deepCopy =
 module.deepCopy =
-function(obj){
+function(obj, functions){
 	return deserialize(
-		serialize(obj)) }
+		serialize(obj, null, 0, functions), 
+		functions) }
 
 
-var semiDeepCopy =
-module.semiDeepCopy =
-function(obj){
-	var funcs = []
+var partialDeepCopy =
+module.partialDeepCopy =
+function(obj, funcs=[]){
 	return deserialize(
 		serialize(obj, null, 0, funcs), 
 		funcs) }

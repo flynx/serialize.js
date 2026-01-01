@@ -152,7 +152,42 @@ test.Tests({
 		var obj = eJSON.deserialize(setup, true)
 		assert(
 			JSON.stringify(obj) == eJSON.serialize(obj) ) },
+
+	'deep-copy': function(assert, [setup]){
+		var obj = eJSON.deserialize(setup, true)
+		var copy = eJSON.deepCopy(obj, true)
+
+		assert(eJSON.serialize(obj) == eJSON.serialize(copy))
+
+		// XXX check if all non-atoms are distinct...
+		// XXX
+	},
+
+	//* XXX ERR
+	'partial-deep-copy': function(assert, [setup]){
+		var obj = eJSON.deserialize(setup, true)
+		var funcs = []
+		var copy = eJSON.partialDeepCopy(obj, funcs)
+
+		assert(eJSON.serialize(obj) == eJSON.serialize(copy))
+
+		// XXX check if all non-atoms are distinct and functions are the same...
+		// XXX
+	},
+	//*/
 })
+
+/* XXX these break things...
+test.Cases({
+	'deep-copy-function': function(assert, [setup]){
+		// XXX check function isolation...
+	},
+
+	'partial-deep-copy-function': function(assert, [setup]){
+		// XXX check function isolation...
+	},
+})
+//*/
 
 
 //---------------------------------------------------------------------
