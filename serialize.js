@@ -403,7 +403,10 @@ module.eJSON = {
 		if(j == str.length 
 				&& str[j-1] != match){
 			this.error('Unexpected end of input wile looking fot "'+ match +'".', str, i, line) }
-		return [ str.slice(i+1, j), j+1, line ] },
+		// NOTE: this is cheating -- instead of dancing around and 
+		// 		replicating the full functionality of JSON.parse(..) we
+		// 		are simply falling back on it, as we did when serializing.
+		return [ JSON.parse(`"${str.slice(i+1, j)}"`), j+1, line ] },
 	identifier: function(state, path, match, str, i, line){
 		debug.lex('identifier', str, i, line)
 		if(!/[a-zA-Z_]/.test(str[i])){
