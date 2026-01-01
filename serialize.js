@@ -41,8 +41,11 @@ var debug = {
 
 //---------------------------------------------------------------------
 
+module.STRING_LENGTH_REF = 64
+
 //
-// 	serialize(obj[, indent[, depth]])
+// 	serialize(obj[, options])
+// 	serialize(obj[, indent[, depth[, options]]])
 // 		-> str
 //
 // 	indent can be:
@@ -50,7 +53,7 @@ var debug = {
 // 		string	- string to use for indenting
 //
 //
-// 	_serialize(obj, base_path, seen, indent, depth, functions)
+// 	_serialize(obj, base_path, seen, indent, depth, options)
 // 		-> str
 //
 //
@@ -103,7 +106,11 @@ var debug = {
 // 		...breaks .trim*() in Map/Set/Object...
 var _serialize = 
 module._serialize = 
-function(obj, path=[], seen=new Map(), indent, depth=0, functions){
+function(obj, path=[], seen=new Map(), indent, depth=0, options={}){
+	var string_length_ref = 
+		options.string_length_ref 
+			?? module.STRING_LENGTH_REF
+
 	// recursive...
 	var p = seen.get(obj)
 	if(p != null){
@@ -117,14 +124,24 @@ function(obj, path=[], seen=new Map(), indent, depth=0, functions){
 		seen.set(obj, path)
 		// if functions array is given add function to it and store its
 		// index in the serialized data...
-		if(functions instanceof Array){
-			functions.push(obj) 
-			obj = functions.length-1 }
+		if(options.functions instanceof Array){
+			options.functions.push(obj) 
+			obj = options.functions.length-1 }
 		var s = '('+ obj.toString() +')'
 		return FUNCTION
 			.replace('%', s.length +','+ s) }
 
+	// special case: long strings...
+	if(typeof(obj) == 'string' 
+			&& obj.length > string_length_ref){
+		seen.set(obj, path) }
+	// BigInt...
+	if(typeof(obj) == 'bigint'){
+		seen.set(obj, path)
+		return obj.toString() +'n' }
+
 	// atomics...
+	// NOTE: these are not stored in seen thus are not re-referenced...
 	if(obj === null){
 		return NULL }
 	if(typeof(obj) != 'object'){
@@ -137,6 +154,8 @@ function(obj, path=[], seen=new Map(), indent, depth=0, functions){
 				INFINITY
 			: obj === -Infinity ?
 				NEG_INFINITY
+			// XXX might be a good idea to reference really long strings instead 
+			// 		of storing each...
 			: JSON.stringify(obj, null, indent) } 
 
 	// objects...
@@ -152,20 +171,20 @@ function(obj, path=[], seen=new Map(), indent, depth=0, functions){
 		for(var i=0; i < obj.length; i++){
 			elems.push(
 				i in obj ?
-					_serialize(obj[i], [...path, i], seen, indent, depth+1, functions)
+					_serialize(obj[i], [...path, i], seen, indent, depth+1, options)
 					: EMPTY) }
 	} else if(obj instanceof Map){
 		pre = 'Map(['
 		post = '])'
 		elems = [
-			_serialize([...obj], path, seen, indent, depth, functions)
+			_serialize([...obj], path, seen, indent, depth, options)
 				.slice(1, -1)
 				.trim() ]
 	} else if(obj instanceof Set){
 		pre = 'Set(['
 		post = '])'
 		elems = [
-			_serialize([...obj], path, seen, indent, depth, functions)
+			_serialize([...obj], path, seen, indent, depth, options)
 				.slice(1, -1)
 				.trim() ]
 	} else {
@@ -175,7 +194,7 @@ function(obj, path=[], seen=new Map(), indent, depth=0, functions){
 			elems.push(`${ 
 					JSON.stringify(k) 
 				}:${ indent != null ? ' ' : '' }${ 
-					_serialize(v, [...path, k], seen, indent, depth+1, functions)
+					_serialize(v, [...path, k], seen, indent, depth+1, options)
 						// relevant for pretty-printing only...
 						.trimLeft()
 				}`) } }
@@ -196,8 +215,8 @@ function(obj, path=[], seen=new Map(), indent, depth=0, functions){
 // user interface...
 var serialize = 
 module.serialize = 
-function(obj, indent, depth=0, functions){
-	return _serialize(obj, [], new Map(), indent, depth, functions) }
+function(obj, indent, depth=0, options){
+	return _serialize(obj, [], new Map(), indent, depth, options) }
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -357,6 +376,9 @@ module.eJSON = {
 					|| (str[j] >= '0'
 						&& str[j] <= '9'))){
 			j++ }
+		// BigInt...
+		if(str[j] == 'n'){
+			return [ BigInt(str.slice(i, j)), j+1, line ] }
 		return [ str.slice(i, j)*1, j, line ] },
 	// XXX TEST count \\n
 	string: function(state, path, match, str, i, line){
@@ -543,7 +565,6 @@ module.eJSON = {
 	// NOTE: this uses eval(..) so care must be taken when enabling this...
 	func: function(state, path, match, str, i, line){
 		if(state.functions == null){
-			console.log('---', state)
 			this.error('Deserializing functions disabled.', str, i, line) }
 
 		debug.lex('function', str, i, line)
@@ -555,7 +576,7 @@ module.eJSON = {
 			this.error('Expected "," got "'+ str[i] +'"', str, i, line) }
 		i++
 
-		// func ref...
+		// func index...
 		if(state.functions instanceof Array){
 			var [n, i, line] = this.number(state, path, str[i+1], str, i+1, line)
 			res = state.functions[n]
@@ -604,10 +625,10 @@ module.eJSON = {
 		return this[handler](state, path, match, str, i, line) },
 
 
-	parse: function(str, functions){
+	parse: function(str, options={}){
 
 		// stage 1: build the object...
-		var state = {functions}
+		var state = {functions: options.functions}
 		var res = this.value(state, [], str)[0] 
 
 		// stage 2: link the recursive structures...
@@ -620,8 +641,12 @@ module.eJSON = {
 
 var deserialize =
 module.deserialize =
-function(str, functions){
-	return eJSON.parse(str, functions) }
+function(str, options){
+	options = 
+		options === true ?
+			{functions: true}
+			: options
+	return eJSON.parse(str, options) }
 
 
 
@@ -630,18 +655,20 @@ function(str, functions){
 
 var deepCopy =
 module.deepCopy =
-function(obj, functions){
+function(obj, funcs){
+	var options = {functions: funcs}
 	return deserialize(
-		serialize(obj, null, 0, functions), 
-		functions) }
+		serialize(obj, null, 0, options), 
+		options) }
 
 
 var partialDeepCopy =
 module.partialDeepCopy =
 function(obj, funcs=[]){
+	var options = {functions: funcs}
 	return deserialize(
-		serialize(obj, null, 0, funcs), 
-		funcs) }
+		serialize(obj, null, 0, options), 
+		options) }
 
 
 

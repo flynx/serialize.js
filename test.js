@@ -49,6 +49,8 @@ var setups = test.Setups({
 		return ['0.123', json] },
 	'float-b': function(assert){
 		return ['1.23', json] },
+	'bigint': function(assert){
+		return ['999999999999999999999n'] },
 	// XXX need a way to test this...
 	//'float-a': function(assert){
 	//	return '.123' },
