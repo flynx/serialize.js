@@ -68,7 +68,6 @@ var setups = test.Setups({
 	// XXX also test diffrerent quotations...
 	string: function(assert){
 		return ['"string"', json] },
-	// XXX ERR this breaks...
 	'string-multiline': function(assert){
 		return ['"string\\nstring\\nstring"', json] },
 
@@ -106,7 +105,6 @@ var setups = test.Setups({
 		return ['Map([[<RECURSIVE[]>,"value"]])'] },
 	'map-recursive-value': function(assert){
 		return ['Map([["key",<RECURSIVE[]>]])'] },
-
 })
 
 test.Modifiers({
@@ -184,12 +182,13 @@ test.Tests({
 })
 
 test.Cases({
-	/* XXX for some magical reason hese break as soon as we add [setup] to arguments...
-	'deep-copy-function': function(assert, [setup]){
-		// XXX check function isolation...
-	},
-	//*/
-
+	//
+	// Format:
+	// 	[
+	// 		[ "<extended-syntax>", "<JSON-syntax>" ],
+	// 		...
+	// 	]
+	//
 	// NOTE: these syntax variants are not output by .serialize(..) this it
 	// 		is less critical to test them in the main loop.
 	// 		XXX though it would be nice to do so...
@@ -199,8 +198,8 @@ test.Cases({
 		['123.', '123'],
 
 		// string quotes...
-		['"abc"', "'abc'"],
-		['"abc"', '`abc`'],
+		["'abc'", '"abc"'],
+		['`abc`', '"abc"'],
 
 		// arrays...
 		['[1,2,]', '[1,2]'],
