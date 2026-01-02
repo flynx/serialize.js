@@ -218,12 +218,34 @@ test.Cases({
 				`"${ a }" and "${ b }" should deserialize to the samve value.`,
 					'got:', aa, 'and', bb, 'resp.') } },
 
+	_make_object_with_methods: function(){
+		var in_closure = 123
+		return {
+			stateful: function(){
+				return typeof(in_closure) != 'undefined' ?
+		   			'state_retained'
+					: 'state_lost' },
+			stateless: function(){
+				return 'stateless' },
+		} },
 	'deep-copy-function': function(assert){
-		// XXX check function isolation...
-	},
+		var obj = this._make_object_with_methods()
+		var obj_copy = eJSON.deepCopy(obj, true)
+
+		assert(obj.stateless() == 'stateless')
+		assert(obj.stateful() == 'state_retained')
+
+		assert(obj_copy.stateless() == 'stateless')
+		assert(obj_copy.stateful() == 'state_lost') },
 	'partial-deep-copy-function': function(assert){
-		// XXX check function isolation...
-	},
+		var obj = this._make_object_with_methods()
+		var obj_copy = eJSON.partialDeepCopy(obj)
+
+		assert(obj.stateless() == 'stateless')
+		assert(obj.stateful() == 'state_retained')
+
+		assert(obj_copy.stateless() == 'stateless')
+		assert(obj_copy.stateful() == 'state_retained') },
 })
 
 
