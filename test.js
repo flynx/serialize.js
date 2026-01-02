@@ -170,7 +170,6 @@ test.Tests({
 		// XXX
 	},
 
-	//* XXX ERR
 	'partial-deep-copy': function(assert, [setup]){
 		var obj = eJSON.deserialize(setup, true)
 		var funcs = []
@@ -232,20 +231,32 @@ test.Cases({
 		var obj = this._make_object_with_methods()
 		var obj_copy = eJSON.deepCopy(obj, true)
 
+		// sanity checks...
 		assert(obj.stateless() == 'stateless')
 		assert(obj.stateful() == 'state_retained')
-
 		assert(obj_copy.stateless() == 'stateless')
-		assert(obj_copy.stateful() == 'state_lost') },
+
+		// context should be lost...
+		assert(
+			obj_copy.stateful() == 'state_lost',
+			'Function closure not lost.')
+		assert(obj.stateful !== obj_copy.stateful,
+			'Function objects retained.') },
 	'partial-deep-copy-function': function(assert){
 		var obj = this._make_object_with_methods()
 		var obj_copy = eJSON.partialDeepCopy(obj)
 
+		// sanity checks...
 		assert(obj.stateless() == 'stateless')
 		assert(obj.stateful() == 'state_retained')
-
 		assert(obj_copy.stateless() == 'stateless')
-		assert(obj_copy.stateful() == 'state_retained') },
+
+		// context should be retained...
+		assert(
+			obj_copy.stateful() == 'state_retained',
+			'Function closure lost.') 
+		assert(obj.stateful === obj_copy.stateful,
+			'Function objects not retained.') },
 })
 
 
