@@ -14,12 +14,25 @@
 * 	indexes)...
 * 	a different path format would suit both tasks and make things more 
 * 	universal:
-* 		[1, 'a', ['map', 5, 0], ['set', 3]]
-* 		 \   \   +---------+-+  +------+-+
-* 		  \   \             \           +------ Set index
-*		   \   \             +----------------- Map index
-*			\   +------------------------------ Objecct index (string)
-*			 +--------------------------------- Array index (number)
+* 		Current:
+*	 		[1, 'a', 5, 0, 3]
+*	 		 \   \   +-++  +---------------- Set index (from context)
+*	 		  \   \     +------------------- Map index (from context)
+*	 		   \   +------------------------ Object key (string)
+*	 		    +--------------------------- Array index (from context)
+* 		Proposed:
+*	 		[1, 'a', ['map', 5, 0], ['set', 3]]
+*	 		 \   \   +---------+-+  +------+-+
+*	 		  \   \             \           +--- Set index
+*			   \   \             +-------------- Map index
+*				\   +--------------------------- Object key (string)
+*				 +------------------------------ Array index (number)
+*		And/or:
+*	 		[1, ['object', 3], ['map', 5, 0], ['set', 3]]
+*	 		    +---------+-+
+*	 		               +----- Object attr index
+*
+*
 *
 **********************************************************************/
 ((typeof define)[0]=='u'?function(f){module.exports=f(require)}:define)
