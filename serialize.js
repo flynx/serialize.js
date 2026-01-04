@@ -1,6 +1,25 @@
 /**********************************************************************
 * 
+* TODO would be useful to split this into:
+* 	- object traversal using object path
+* 		Object.walk(..) -- a-la Python's walk(..)
+* 		Object.graph(..)
+* 			like .map(..) but deep and paths instead of indexes...
+* 	- get/set object by path
+* 		Object.get(..) / Object.set(..)
 *
+* XXX the current path implementation is fully complient to the task at 
+* 	hand but it will not suite the diff task as there is no way to know
+* 	the meaning of the path element without seeing the object (map/set 
+* 	indexes)...
+* 	a different path format would suit both tasks and make things more 
+* 	universal:
+* 		[1, 'a', ['map', 5, 0], ['set', 3]]
+* 		 \   \   +---------+-+  +------+-+
+* 		  \   \             \           +------ Set index
+*		   \   \             +----------------- Map index
+*			\   +------------------------------ Objecct index (string)
+*			 +--------------------------------- Array index (number)
 *
 **********************************************************************/
 ((typeof define)[0]=='u'?function(f){module.exports=f(require)}:define)
