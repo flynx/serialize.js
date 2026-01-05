@@ -31,6 +31,8 @@
 *	 		[1, ['object', 3], ['map', 5, 0], ['set', 3]]
 *	 		    +---------+-+
 *	 		               +----- Object attr index
+*	The questions is which to use as default for objects, the key or 
+*	position?
 *
 *
 *
