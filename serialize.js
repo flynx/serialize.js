@@ -33,6 +33,7 @@
 *	 		               +----- Object attr index
 *	The questions is which to use as default for objects, the key or 
 *	position?
+*	(XXX move this note to diff.jx)
 *
 *
 *
@@ -75,7 +76,8 @@ var debug = {
 
 //---------------------------------------------------------------------
 
-module.STRING_LENGTH_REF = 64
+module.STRING_LENGTH_REF = RECURSIVE.length * 8
+
 
 //
 // 	serialize(obj[, options])
@@ -135,7 +137,7 @@ module.STRING_LENGTH_REF = 64
 // 		]
 //
 //
-// XXX BUG: using non-whitespace as indent breaks the depth of the first 
+// XXX BUG?: using non-whitespace as indent breaks the depth of the first 
 // 		or last elements in sequences
 // 		...breaks .trim*() in Map/Set/Object...
 var _serialize = 
@@ -165,7 +167,9 @@ function(obj, path=[], seen=new Map(), indent, depth=0, options={}){
 		return FUNCTION
 			.replace('%', s.length +','+ s) }
 
-	// special case: long strings...
+	// long strings...
+	// NOTE: this saves on output size...
+	// XXX is this relevant when we can "zip" the results...
 	if(typeof(obj) == 'string' 
 			&& obj.length > string_length_ref){
 		seen.set(obj, path) }
