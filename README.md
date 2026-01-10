@@ -52,14 +52,30 @@ Thus, care must be taken when serializing structures containing function.
 ## Format
 
 The output of `.serialize(..)` is a strict superset of standard JSON, 
-while the input format is a bit more relaxed than JSON in several details.
+while the input format is a bit more relaxed than in several details.
 
 Extensions to JSON:
 - Recursion
 - null types
 - BigInt
 - Map / Set
-- Function as code
-- Function as index
+- Function
+
+### Structural paths
+
+### Recursion
+
+### null types
+
+### BigInt
+
+### Map / Set
+
+### Functions
+
+
+
+
+
 
 
