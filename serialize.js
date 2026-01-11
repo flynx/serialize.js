@@ -35,6 +35,7 @@
 *	position?
 *	(XXX move this note to diff.jx)
 *
+* XXX do a revision of the JSON standard for things I could have forgotten...
 *
 *
 **********************************************************************/
@@ -267,7 +268,7 @@ module.eJSON = {
 
 		0: 'number', 1: 'number', 2: 'number', 3: 'number', 4: 'number',
 		5: 'number', 6: 'number', 7: 'number', 8: 'number', 9: 'number',
-		'.': 'number', '-': 'number',
+		'.': 'number', '-': 'number', '+': 'number',
 
 		'[': 'array',
 		'{': 'object',
@@ -410,8 +411,11 @@ module.eJSON = {
 		var j = i+1
 		while(j < str.length
 				&& (str[j] == '.'
+					|| str[j] == 'e'
 					|| (str[j] >= '0'
 						&& str[j] <= '9'))){
+			if(str.slice(j, j+2) == 'e+'){
+				j++ }
 			j++ }
 		// BigInt...
 		if(str[j] == 'n'){
