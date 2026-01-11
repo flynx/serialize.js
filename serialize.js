@@ -413,7 +413,7 @@ module.eJSON = {
 		var mode = 'dec'
 		if(str[j] == '0' 
 				&& 'xXbBoO'.includes(str[j+1])){
-			mode = str[j+1]
+			mode = str[j+1].toLowerCase()
 			j++ }
 		j++
 		while(j < str.length
@@ -432,6 +432,7 @@ module.eJSON = {
 					// exponent...
 					|| str[j] == 'e'
 						|| str[j] == 'E')){
+			// exponent sign...
 			if('eE'.includes(str[j]) 
 				&& '+-'.includes(str[j+1])){
 				j++ }

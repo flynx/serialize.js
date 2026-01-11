@@ -49,6 +49,8 @@ var setups = test.Setups({
 	//	return ['+123', json] },
 	'number-exp': function(assert){
 		return ['1e+100', json] },
+	'number-exp-neg': function(assert){
+		return ['1e-100', json] },
 	'number-zero': function(assert){
 		return ['0', json] },
 	'float-a': function(assert){
@@ -204,9 +206,16 @@ test.Cases({
 		['123.', '123'],
 		['+123', '123'],
 		['123e100', '123e+100'],
+		['123E100', '123e+100'],
 		['0xff', '255'],
+		['0Xff', '255'],
+		['0o77', '63'],
+		['0O77', '63'],
+		['0b11', '3'],
+		['0B11', '3'],
 
 		// string quotes...
+		// XXX test new lines...
 		["'abc'", '"abc"'],
 		['`abc`', '"abc"'],
 
