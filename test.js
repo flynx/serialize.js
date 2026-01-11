@@ -72,6 +72,8 @@ var setups = test.Setups({
 	// XXX also test diffrerent quotations...
 	string: function(assert){
 		return ['"string"', json] },
+	'string-empty': function(assert){
+		return ['""', json] },
 	'string-multiline': function(assert){
 		return ['"string\\nstring\\nstring"', json] },
 
@@ -202,6 +204,7 @@ test.Cases({
 		['123.', '123'],
 		['+123', '123'],
 		['123e100', '123e+100'],
+		['0xff', '255'],
 
 		// string quotes...
 		["'abc'", '"abc"'],

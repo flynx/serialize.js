@@ -408,13 +408,32 @@ module.eJSON = {
 				&& str.slice(i, i+'-Infinity'.length) == '-Infinity'){
 			return [-Infinity, i+'-Infinity'.length, line] }
 		// numbers...
-		var j = i+1
+		// XXX do we need to handle the odd case of 077 vs 088???
+		var j = i
+		var mode = 'dec'
+		if(str[j] == '0' 
+				&& 'xXbBoO'.includes(str[j+1])){
+			mode = str[j+1]
+			j++ }
+		j++
 		while(j < str.length
 				&& (str[j] == '.'
-					|| str[j] == 'e'
+					// dec/oct/bin...
+					// XXX do we need to be pedantic and check the rest 
+					// 		of the modes explicitly???
 					|| (str[j] >= '0'
-						&& str[j] <= '9'))){
-			if(str.slice(j, j+2) == 'e+'){
+						&& str[j] <= '9')
+					// hex...
+					|| (mode == 'x'
+						&& ((str[j] >= 'a'
+								&& str[j] <= 'f')
+							|| (str[j] >= 'A'
+								&& str[j] <= 'F')))
+					// exponent...
+					|| str[j] == 'e'
+						|| str[j] == 'E')){
+			if('eE'.includes(str[j]) 
+				&& '+-'.includes(str[j+1])){
 				j++ }
 			j++ }
 		// BigInt...
