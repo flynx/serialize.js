@@ -213,19 +213,26 @@ test.Cases({
 		['0O77', '63'],
 		['0b11', '3'],
 		['0B11', '3'],
+		// XXX
+		//['010', '8'],
+		//['080', '80'],
 
 		// string quotes...
-		// XXX test new lines...
 		["'abc'", '"abc"'],
 		['`abc`', '"abc"'],
+		/* XXX test new lines...
+		[`\`a
+			b
+			c\``, '"a\\nb\\nc"'],
+		//*/
 
 		// arrays...
 		['[1,2,]', '[1,2]'],
 
 		// sparse arrays...
-		['[<empty>]', '[,]'],
-		['[1,2,<empty>]', '[1,2,,]'],
-		['[1,2,<empty>]', '[1,2,<empty>,]'],
+		['[,]', '[<empty>]'],
+		['[1,2,,]', '[1,2,<empty>]'],
+		['[1,2,<empty>,]', '[1,2,<empty>]'],
 	],
 	'syntax-simplifications': function(assert){
 		var aa, bb
