@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/flynx/serialize.js"
+    "url": "git+https://github.com/flynx/serialize.js.git"
   },
   "keywords": [
     "JSON",
