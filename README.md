@@ -65,6 +65,8 @@ Extensions to JSON:
 
 ### Recursion
 
+If an object is encountered 
+
 ### null types
 
 ### BigInt

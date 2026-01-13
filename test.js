@@ -100,19 +100,19 @@ var setups = test.Setups({
 		return ['Map([])'] },
 
 	'function': function(assert){
-		return ['<FUNCTION[14,(function(){})]>'] },
+		return ['<FUNC[14,(function(){})]>'] },
 
 	// recursive...
 	'array-recursive': function(assert){
-		return ['[<RECURSIVE[]>]'] },
+		return ['[<REF[]>]'] },
 	'object-recursive': function(assert){
-		return ['{"r":<RECURSIVE[]>}'] },
+		return ['{"r":<REF[]>}'] },
 	'set-recursive': function(assert){
-		return ['Set([<RECURSIVE[]>])'] },
+		return ['Set([<REF[]>])'] },
 	'map-recursive-key': function(assert){
-		return ['Map([[<RECURSIVE[]>,"value"]])'] },
+		return ['Map([[<REF[]>,"value"]])'] },
 	'map-recursive-value': function(assert){
-		return ['Map([["key",<RECURSIVE[]>]])'] },
+		return ['Map([["key",<REF[]>]])'] },
 })
 
 test.Modifiers({

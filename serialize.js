@@ -51,9 +51,9 @@ var NAN = 'NaN'
 var INFINITY = 'Infinity'
 var NEG_INFINITY = '-Infinity'
 
-var RECURSIVE = '<RECURSIVE%>'
+var REFERENCE = '<REF%>'
 
-var FUNCTION = '<FUNCTION[%]>'
+var FUNCTION = '<FUNC[%]>'
 
 
 
@@ -77,7 +77,7 @@ var debug = {
 
 //---------------------------------------------------------------------
 
-module.STRING_LENGTH_REF = RECURSIVE.length * 8
+module.STRING_LENGTH_REF = REFERENCE.length * 8
 
 
 //
@@ -148,11 +148,11 @@ function(obj, path=[], seen=new Map(), indent, depth=0, options={}){
 		options.string_length_ref 
 			?? module.STRING_LENGTH_REF
 
-	// recursive...
+	// reference...
 	var p = seen.get(obj)
 	if(p != null){
 		// NOTE: _serialize(..) is always printed flat here, regardless of indent/depth...
-		return RECURSIVE.replace('%', _serialize(p)) }
+		return REFERENCE.replace('%', _serialize(p)) }
 
 	// functions...
 	// NOTE: we are storing function length to avoid parsing the function...
@@ -260,7 +260,7 @@ function(obj, indent, depth=0, options){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 // XXX better error handling...
-// XXX try and make this single stage (see notes for : .recursive(..))
+// XXX try and make this single stage (see notes for : .reference(..))
 var eJSON = 
 module.eJSON = {
 	chars: {
@@ -287,9 +287,9 @@ module.eJSON = {
 		NaN: NaN,
 
 		'<empty>': 'empty',
-		'<RECURSIVE': 'recursive',
+		'<REF': 'reference',
 
-		'<FUNCTION[': 'func',
+		'<FUNC[': 'func',
 	},
 	
 
@@ -614,15 +614,15 @@ module.eJSON = {
 	// 		directly reference that -- this would eliminate the need for 
 	// 		stage two... (XXX TEST)
 	// 		...need to use serialized paths as keys...
-	recursive: function(state, path, match, str, i, line){
-		debug.lex('recursive', str, i, line)
+	reference: function(state, path, match, str, i, line){
+		debug.lex('reference', str, i, line)
 		return this.sequence(
 			state, path, str, i+match.length, line, 
 			'>',
 			function(res, index, str, i, line){
 				var obj
 				;[obj, i, line] = this.array(state, [...path, index], '[', str, i, line)
-				var rec = state.recursive ??= []
+				var rec = state.reference ??= []
 				rec.push([path, obj])
 				return [{}, i, line] }) },
 
@@ -695,8 +695,8 @@ module.eJSON = {
 		var state = {functions: options.functions}
 		var res = this.value(state, [], str)[0] 
 
-		// stage 2: link the recursive structures...
-		for(var [a, b] of state.recursive ?? []){
+		// stage 2: link the reference structures...
+		for(var [a, b] of state.reference ?? []){
 			this.setItem(res, a, this.getItem(res, b)) }
 
 		return res },
