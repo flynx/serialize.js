@@ -7,6 +7,9 @@ This extends the default JSON serialization adding the following:
 - Function serialization (off by default)
 - Deep and partial-deep cleen object copy
 
+Possible differences to JSON output:
+- Repeating long strings and BigInts can be referenced instead of 
+  reincluded in the output.
 
 
 ## Motivation
@@ -45,7 +48,20 @@ loosing:
 Thus, care must be taken when serializing structures containing function.
 
 
+
 ## API
+
+### `STRING_LENGTH_REF` / `settings.string_length_ref` 
+
+Defines the default maximum string to include in the output as-is before 
+referencing.
+
+If set to `0`, referencing will be disabled.
+
+Default: 96  
+(Dynamic: `.REFERENCE.length * 16`) 
+
+
 
 ### `serialize(..)` / `eJSON.stringify(..)`
 

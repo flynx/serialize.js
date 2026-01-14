@@ -77,7 +77,7 @@ var debug = {
 
 //---------------------------------------------------------------------
 
-module.STRING_LENGTH_REF = REFERENCE.length * 8
+module.STRING_LENGTH_REF = REFERENCE.length * 16
 
 
 //
