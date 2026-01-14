@@ -51,18 +51,6 @@ Thus, care must be taken when serializing structures containing function.
 
 ## API
 
-### `STRING_LENGTH_REF` / `settings.string_length_ref` 
-
-Defines the default maximum string to include in the output as-is before 
-referencing.
-
-If set to `0`, referencing will be disabled.
-
-Default: 96  
-(Dynamic: `.REFERENCE.length * 16`) 
-
-
-
 ### `serialize(..)` / `eJSON.stringify(..)`
 
 ### `deserialize(..)` / 'eJSON.parse(..)'
@@ -70,6 +58,20 @@ Default: 96
 ### `deepCopy(..)`
 
 ### `partialDeepCopy(..)`
+
+
+### `MIN_LENGTH_REF` / `<options>.min_length_ref` 
+
+Defines the default minimum length of repeating string or bin-int to 
+include as a reference in the output.
+
+If set to `0`, referencing will be disabled.
+
+Default: 96  
+
+
+### `DEBUG`
+
 
 
 ## Format

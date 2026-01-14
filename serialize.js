@@ -77,7 +77,7 @@ var debug = {
 
 //---------------------------------------------------------------------
 
-module.STRING_LENGTH_REF = REFERENCE.length * 16
+module.MIN_LENGTH_REF = REFERENCE.length * 16
 
 
 //
@@ -144,9 +144,13 @@ module.STRING_LENGTH_REF = REFERENCE.length * 16
 var _serialize = 
 module._serialize = 
 function(obj, path=[], seen=new Map(), indent, depth=0, options={}){
-	var string_length_ref = 
-		options.string_length_ref 
-			?? module.STRING_LENGTH_REF
+	var min_length_ref = 
+		options.min_length_ref 
+			?? module.MIN_LENGTH_REF
+	min_length_ref = 
+		min_length_ref <= 0 ? 
+			Infinity 
+			: min_length_ref
 
 	// reference...
 	var p = seen.get(obj)
@@ -171,12 +175,14 @@ function(obj, path=[], seen=new Map(), indent, depth=0, options={}){
 	// long strings...
 	// NOTE: this saves on output size...
 	if(typeof(obj) == 'string' 
-			&& obj.length > string_length_ref){
+			&& obj.length > min_length_ref){
 		seen.set(obj, path) }
 	// BigInt...
 	if(typeof(obj) == 'bigint'){
-		seen.set(obj, path)
-		return obj.toString() +'n' }
+		var res = obj.toString() +'n' 
+		if(res.length > min_length_ref){
+			seen.set(obj, path) }
+		return res }
 
 	// atomics...
 	// NOTE: these are not stored in seen thus are not re-referenced...
