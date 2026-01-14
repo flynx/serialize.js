@@ -20,6 +20,13 @@ and tooling design, basic parsing, among others.
 
 ## Installation
 
+```shell
+$ npm install ig-serilaize
+```
+
+Or just download and drop [serialize.js](serialize.js) into your code.
+
+
 
 ## Introduction
 
