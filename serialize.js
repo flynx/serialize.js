@@ -93,6 +93,15 @@ module.MIN_LENGTH_REF = REFERENCE.length * 16
 // 	_serialize(obj, base_path, seen, indent, depth, options)
 // 		-> str
 //
+// Options format:
+// 	{
+// 		// Indent to use 
+// 		indent: undefined,
+// 		depth: 0,
+// 		min_length_ref: MIN_LENGTH_REF,
+// 		functions: undefined,
+// 	}
+//
 //
 // Paths
 // 	A path is a chain of indexes/keys leading to a specific object in 
@@ -144,6 +153,8 @@ module.MIN_LENGTH_REF = REFERENCE.length * 16
 var _serialize = 
 module._serialize = 
 function(obj, path=[], seen=new Map(), indent, depth=0, options={}){
+	if(typeof(indent) == 'number'){
+		indent = ' '.repeat(indent) }
 	var min_length_ref = 
 		options.min_length_ref 
 			?? module.MIN_LENGTH_REF
@@ -260,6 +271,11 @@ function(obj, path=[], seen=new Map(), indent, depth=0, options={}){
 var serialize = 
 module.serialize = 
 function(obj, indent, depth=0, options){
+	if(indent 
+			&& typeof(indent) == 'object'){
+		options = indent
+		indent = options.indent
+		depth = options.depth ?? 0 }
 	return _serialize(obj, [], new Map(), indent, depth, options) }
 
 

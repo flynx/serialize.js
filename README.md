@@ -53,11 +53,63 @@ Thus, care must be taken when serializing structures containing function.
 
 ### `serialize(..)` / `eJSON.stringify(..)`
 
+Serialize a JavaScript value into a JSON or JSON-like string.
+```
+serialize(<value>)
+eJSON.stringify(<value>)
+	-> <string>
+```
+
+More control:
+```
+serialize(obj, options){
+serialize(obj, indent, depth=0, options){
+	-> <string>
+```
+
+Supported options:
+- `indent` controls formatting and nested value indent, if set to a number 
+  that number of spaces will be used to indent nested values if given a 
+  string that string is used for indenting, note that only whitespace is 
+  supported currently.
+  Default: `undefined` (disabled)
+- `depth` if given is a number of `indent`'s, used to set top level indent 
+  depth of the returned string, this can be useful when pretty-printing 
+  or nesting the output. 
+  Default: `0`
+- `min_length_ref` sets the minimal length of a string or big-int value
+  for referencing when encountered repeatedly. 
+  If set to `0` or `Infinity` referencing of strings and big-ints will 
+  be is disabled. 
+  Default: 'MIN_LENGTH_REF'
+- `functions` if passed an array, encounterd functions will be pushed to 
+  it and stored in the output by index. 
+  Default: `undefined`
+
+
 ### `deserialize(..)` / 'eJSON.parse(..)'
+
+```
+deserialize(<string>)
+eJSON.parse(<string>)
+	-> <value>
+```
+
 
 ### `deepCopy(..)`
 
+```
+deepCopy(<value>)
+	-> <value>
+```
+
+
 ### `partialDeepCopy(..)`
+
+```
+partialDeepCopy(<value>)
+	-> <value>
+```
 
 
 ### `MIN_LENGTH_REF` / `<options>.min_length_ref` 
