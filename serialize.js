@@ -93,12 +93,26 @@ module.MIN_LENGTH_REF = REFERENCE.length * 16
 // 	_serialize(obj, base_path, seen, indent, depth, options)
 // 		-> str
 //
-// Options format:
+//
+// options format:
 // 	{
-// 		// Indent to use 
+// 		// Indent to use for formatting output.
+// 		// Can be:
+// 		//	<number>	- number of spaces to use for indent
+// 		//	<string>	- string to use for indent
+// 		// 					NOTE: only whitespace characters are supported 
+// 		//						currently.
 // 		indent: undefined,
+//
+// 		// Top level indent.
 // 		depth: 0,
+//
+// 		// Minimum length of string/bigint to reference.
 // 		min_length_ref: MIN_LENGTH_REF,
+//
+// 		// Stored functions.
+// 		// If set to an array functions will be pushed to it and stored 
+// 		// by index.
 // 		functions: undefined,
 // 	}
 //
@@ -711,7 +725,12 @@ module.eJSON = {
 		return this[handler](state, path, match, str, i, line) },
 
 
-	parse: function(str, options={}){
+	parse: function(str, options){
+		options = 
+			options === true ?
+				{functions: true}
+				: (options 
+					?? {})
 
 		// stage 1: build the object...
 		var state = {functions: options.functions}
@@ -731,10 +750,6 @@ module.eJSON = {
 var deserialize =
 module.deserialize =
 function(str, options){
-	options = 
-		options === true ?
-			{functions: true}
-			: options
 	return eJSON.parse(str, options) }
 
 

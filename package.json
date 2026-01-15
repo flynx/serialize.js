@@ -1,6 +1,6 @@
 {
   "name": "ig-serialize",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "experimental extended json serializaion...",
   "main": "serialize.js",
   "scripts": {
