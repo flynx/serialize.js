@@ -87,7 +87,7 @@ Supported options:
   Default: `undefined`
 
 
-### `deserialize(..)` / 'eJSON.parse(..)'
+### `deserialize(..)` / `eJSON.parse(..)`
 
 Deserialize a JSON/eJSON into a value.
 ```
