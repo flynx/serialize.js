@@ -8,8 +8,9 @@ This extends the default JSON serialization adding the following:
 - Deep and partial-deep cleen object copy
 
 Possible differences to JSON output:
-- Repeating long strings and BigInts can be referenced instead of 
-  reincluded in the output.
+- Repeating long strings and BigInts are referenced by default instead of 
+  being reincluded in the output.
+
 
 
 ## Motivation
@@ -65,6 +66,27 @@ More control:
 serialize(obj, options){
 serialize(obj, indent, depth=0, options){
 	-> <string>
+```
+
+Options format:
+```
+{
+	// pretty-printing indent...
+	// (default: undefined)
+	indent: undefined,
+	
+	// outout root indent...
+	// (default: 0)
+	depth: 0,
+	
+	// minimal referenced string/bigint length...
+	// (default: MIN_LENGTH_REF)
+	min_length_ref: MIN_LENGTH_REF,
+	
+	// functions list...
+	// (default: undefined)
+	functions: undefined,
+}
 ```
 
 Supported options:
