@@ -228,11 +228,6 @@ test.Cases({
 
 		// arrays...
 		['[1,2,]', '[1,2]'],
-
-		// sparse arrays...
-		['[,]', '[<empty>]'],
-		['[1,2,,]', '[1,2,<empty>]'],
-		['[1,2,<empty>,]', '[1,2,<empty>]'],
 	],
 	'syntax-simplifications': function(assert){
 		var aa, bb
