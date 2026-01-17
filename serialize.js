@@ -380,8 +380,13 @@ module.eJSON = {
 					&& i == path.length-1){
 				return [path.slice(0, -1), obj] }
 
-			obj = obj instanceof Set ?
+			obj = 
+				// special case: string key -> attribute...
+				typeof(k) == 'string' ?
+					obj[k]
+				: obj instanceof Set ?
 					[...obj][k]
+				// takes two items off the path -- [intex, key/value]...
 				: obj instanceof Map ?
 					[...obj][k][path[++i]]
 				: obj[k] }
@@ -405,6 +410,12 @@ module.eJSON = {
 	setItem: function(obj, path, value){
 		var [p, parent] = this._getItem(obj, path.slice(0, -1))
 		var k = path.at(-1)
+
+		// special case: string kye -> attr...
+		if(typeof(k) == 'string'){
+			parent[k] = value 
+			return value }
+
 		if(parent instanceof Set){
 			var elems = [...parent]
 			elems[k] = value

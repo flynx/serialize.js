@@ -188,7 +188,69 @@ Extensions to JSON:
 
 ### Structural paths
 
+Paths are used for internal references in cases when objects are 
+encountered multiple times, e.g. in recursion.
+
+A path is an array of keys, the meaning of each key depends on the data 
+structure traversed:
+- array -> number
+- object -> string
+- set -> number -- item order in set
+- map -> pair of numbers -- the first indicates item order the second 
+  if 0 selects the key, if 1 selects the value.
+
+Note that string path items are unambiguous and are always treated as 
+attributes.
+
+For examples see next section.
+
+
 ### Recursion and internal linking
+
+If an object is encountered for a second time it will be serialized as 
+a reference by path to the first occurrence.
+
+An empty path indicates the root object.
+
+Format:
+```bnf
+<ref> ::= 
+	'<REF' <path> '>'
+	
+<path> ::= 
+	'[' <path-items> ']'
+	
+<path-items> ::=
+	<item>
+	| <item> ',' <path-items>
+	
+<item> ::=
+	<number>
+	| <string> 
+```
+
+Example:
+'''javascript
+var o = []
+o.o = o
+
+// root object reference...
+serialize(o) // -> '[<REF[]>]'
+
+// array item...
+serialize([o]) // -> '[[<REF[0]>]]'
+
+// set item...
+// NOTE: the path here is the same as in the above example -- since we 
+//	use ordered topology for paths sets do not differ from arrays.
+serialize(new Set([o])) // -> 'Set([[<REF[0]>]])'
+
+// map key...
+serialize(new Map([[o, 'value']])) // -> 'Map([[[<REF[0,0]>],"value"]])'
+
+// map value...
+serialize(new Map([['key', o]])) // -> 'Map([["key",[<REF[0,1]>]]])'
+'''
 
 
 ### null types
