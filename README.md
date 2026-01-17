@@ -2,8 +2,9 @@
 
 This extends the default JSON serialization adding the following:
 - Recursive data structure serialization
+- Sparse array serialization
 - `undefined`/`NaN` serialization
-- Serialization of `BigInt`'s, `Set`'s, `Map`'s
+- Serialization of `Infinity`, `BigInt`'s, `Set`'s, `Map`'s
 - Function serialization (off by default)
 - Deep and partial-deep cleen object copy
 
@@ -179,12 +180,6 @@ Default: 96
 The output of `.serialize(..)` is a strict superset of [standard JSON](https://www.json.org/json-en.html), 
 while the input format is a bit more relaxed than in several details.
 
-Extensions to JSON:
-- References
-- undefined / NaN
-- BigInt
-- Map / Set
-- Function
 
 ### Structural paths
 
@@ -202,15 +197,13 @@ structure traversed:
 Note that string path items are unambiguous and are always treated as 
 attributes.
 
-For examples see next section.
+An empty path indicates the root object.
 
 
 ### Referencing 
 
 If an object is encountered for a second time it will be serialized as 
 a reference by path to the first occurrence.
-
-An empty path indicates the root object.
 
 Format:
 ```bnf
@@ -254,9 +247,40 @@ serialize(new Map([['key', o]])) // -> 'Map([["key",[<REF[0,1]>]]])'
 ```
 
 
-### null types
+### Null types
+
+In addition to `null`, serialize.js adds support for `undefined` and 
+`NaN` which are stored as-is.
+
+Example:
+```javascript
+serialize([null, undefined, NaN]) // -> '[null,undefined,NaN]'
+```
+
+### Sparse arrays
+
+Sparse arrays are represented in the same way JavaScript handles them 
+syntactically.
+
+Example:
+```javascript
+serialize([,]) // -> '[,]'
+serialize([,,]) // -> '[,,]'
+```
+
+Note that trailing commas are ignored in the same way JavaScript ignores 
+them:
+```javascript
+// trailing comma...
+serialize([1,]) // -> '[1]'
+
+// sparse element...
+serialize([1,,]) // -> '[1,,]'
+```
 
 ### BigInt
+
+### Infinity
 
 ### Map / Set
 
@@ -285,4 +309,4 @@ $ node ./test.js
 
 
 
-
+<!-- vim:set nowrap : -->

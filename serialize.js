@@ -247,11 +247,13 @@ function(obj, path=[], seen=new Map(), indent, depth=0, options={}){
 	if(obj instanceof Array){
 		pre = '['
 		post = ']'
+		elems.length = obj.length
 		for(var i=0; i < obj.length; i++){
-			elems.push(
-				i in obj ?
-					_serialize(obj[i], [...path, i], seen, indent, depth+1, options)
-					: EMPTY) }
+			if(i in obj){
+				elems[i] = _serialize(obj[i], [...path, i], seen, indent, depth+1, options) } }
+		// add trailing coma if last elem is empty...
+		if(!(elems.length-1 in elems)){
+			elems.length++ }
 	} else if(obj instanceof Map){
 		pre = 'Map(['
 		post = '])'

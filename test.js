@@ -82,13 +82,13 @@ var setups = test.Setups({
 	'array-empty': function(assert){
 		return ['[]', json] },
 	'array-sparse-a': function(assert){
-		return ['[<empty>]'] },
+		return ['[,]'] },
 	'array-sparse-b': function(assert){
-		return ['["a",<empty>]'] },
+		return ['["a",,]'] },
 	'array-sparse-c': function(assert){
-		return ['[<empty>,"a"]'] },
+		return ['[,"a"]'] },
 	'array-sparse-d': function(assert){
-		return ['[<empty>,1,<empty>,<empty>,2,<empty>]'] },
+		return ['[,1,,,2,,]'] },
 
 	'object-empty': function(assert){
 		return ['{}', json] },
