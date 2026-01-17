@@ -188,9 +188,8 @@ Extensions to JSON:
 
 ### Structural paths
 
-### Recursion
+### Recursion and internal linking
 
-If an object is encountered 
 
 ### null types
 

@@ -8,6 +8,16 @@
 * 	- get/set object by path
 * 		Object.get(..) / Object.set(..)
 *
+* XXX try removing paths from refs and use the same indexes, the same 
+* 	system as with functions...
+* 		+ this will make the refs shorter
+* 		- the deserialization would require the same "seen" logic as 
+* 			serialization -- reuse a function
+* 		- the "seen" logic can depend on settings, i.e. would either 
+* 			require a sable algorithm that would be settings-agnostic
+* 			a-la paths (preferred), or a way to transfer serialization 
+* 			settings...
+*
 * XXX the current path implementation is fully complient to the task at 
 * 	hand but it will not suite the diff task as there is no way to know
 * 	the meaning of the path element without seeing the object (map/set 
