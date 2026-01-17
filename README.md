@@ -24,12 +24,17 @@ and tooling design, basic parsing, among others.
 
 ## Installation
 
+For basic use:
 ```shell
 $ npm install ig-serilaize
 ```
 
 Or just download and drop [serialize.js](serialize.js) into your code.
 
+
+```javascript
+serialize = require('ig-serialize')
+```
 
 
 ## Introduction
@@ -196,6 +201,24 @@ If an object is encountered
 ### Functions
 
 
+
+
+## Running tests
+
+Get the development dependencies:
+```shell
+$ npm install -D
+```
+
+Run the tests:
+```shell
+$ npm test
+```
+
+To run the tests directly:
+```shell
+$ node ./test.js
+```
 
 
 
