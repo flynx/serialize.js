@@ -180,7 +180,7 @@ The output of `.serialize(..)` is a strict superset of [standard JSON](https://w
 while the input format is a bit more relaxed than in several details.
 
 Extensions to JSON:
-- Recursion
+- References
 - undefined / NaN
 - BigInt
 - Map / Set
@@ -205,7 +205,7 @@ attributes.
 For examples see next section.
 
 
-### Recursion and internal linking
+### Referencing 
 
 If an object is encountered for a second time it will be serialized as 
 a reference by path to the first occurrence.
@@ -230,7 +230,8 @@ Format:
 ```
 
 Example:
-'''javascript
+```javascript
+// a recursive array...
 var o = []
 o.o = o
 
@@ -250,7 +251,7 @@ serialize(new Map([[o, 'value']])) // -> 'Map([[[<REF[0,0]>],"value"]])'
 
 // map value...
 serialize(new Map([['key', o]])) // -> 'Map([["key",[<REF[0,1]>]]])'
-'''
+```
 
 
 ### null types
