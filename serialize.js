@@ -333,7 +333,6 @@ module.eJSON = {
 		undefined: undefined,
 		NaN: NaN,
 
-		'<empty>': 'empty',
 		'<REF': 'reference',
 
 		'<FUNC[': 'func',
