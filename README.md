@@ -240,13 +240,13 @@ while the input format is a bit more relaxed than in several details.
 Paths are used for internal references in cases when objects are 
 encountered multiple times, e.g. in recursion.
 
-A path is an array of keys, the meaning of each key depends on the data 
+A path is an array of keys, the semantics of each key depend on the data 
 structure traversed:
-- array -> number
-- object -> string
-- set -> number -- item order in set
-- map -> pair of numbers -- the first indicates item order the second 
-  if 0 selects the key, if 1 selects the value.
+- `Array` expects a number
+- `Set` expects a number -- item order in set
+- `Map` expects pair of consecutive numbers -- the first indicates item 
+  order the second if `0` selects the key, if `1` selects the value.
+- `Object` expects a string
 
 An empty path indicates the root object.
 
