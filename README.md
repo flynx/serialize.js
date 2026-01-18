@@ -5,13 +5,12 @@ This extends the default JSON serialization adding the following:
 - Sparse array serialization
 - `undefined`/`NaN` serialization
 - Serialization of `Infinity`, `BigInt`'s, `Set`'s, `Map`'s
-- Function serialization (off by default)
+- Function serialization
 - Deep and partial-deep cleen object copy
 
-Possible differences to JSON output:
-- Repeating long strings and BigInts are referenced by default instead of 
-  being reincluded in the output.
-
+Data not stored:
+- Attributes on arrays, maps, sets, and functions,
+- Function closures.
 
 
 ## Motivation
@@ -40,6 +39,43 @@ var serialize = require('ig-serialize')
 
 ## Introduction
 
+`serialize.js` provides two toolsets:
+
+1. A means to serialize and deserialize complex data structures into an
+   extended JSON format.  
+   ```javascript
+   var obj = {
+   	sparse_array: [,,,,1],
+	bad_number: NaN,
+	really_large_number: 99999999999999999999999n,
+   }
+   obj.recursive = obj
+   obj.re_reference = obj.sparse_array
+   
+   var str = serialize(obj)
+   
+   // ...
+   
+   var copy = deserialize(str)
+   ```
+   This is useful when requiering serialization of data structures more 
+   complex than pure JSON can handle.
+2. A means to cleanly copy deep data structures with guaranteed isolation.  
+   ```javascript
+   var obj = {
+   	// ...
+   }
+   
+   var copy = deepCopy(obj)
+   ```
+
+### Long strings and large `BigInt`'s
+
+Repeating strings and `BigInt`'s longer that `MIN_LENGTH_REF` are stored 
+by reference by default.
+
+See: ['MIN_LENGTH_REF'](#min_length_ref-options-min_length_ref) 
+
 
 ### Serializing functions
 
@@ -57,6 +93,12 @@ Thus, care must be taken when serializing structures containing function.
 
 
 ## API
+
+### `eJSON`
+
+An `JSON`-api-compatible object providing [`.stringify(..)`](#serialize-ejson-stringify) and [`.parse(..)`](#deserialize-ejson-parse)
+static methods.
+
 
 ### `serialize(..)` / `eJSON.stringify(..)`
 
@@ -147,31 +189,43 @@ eJSON.parse(<string>, {functions: <functions>})
 
 ### `deepCopy(..)`
 
+Deep-copy an object.
+
 ```
 deepCopy(<value>)
 	-> <value>
 ```
 
+The returned object is a fully sanitized through serialization clean copy.
+
 
 ### `partialDeepCopy(..)`
+
+Partially deep-copy and object, retaining only references to functions.
 
 ```
 partialDeepCopy(<value>)
 	-> <value>
 ```
 
+The returned object is a partially sanitized through serialization clean 
+copy with function references copied as-is from the input retaining and
+"transferring" all associated function state like attributes and closures.
+
+Note that this is by definition a _controlled state leak_ from input 
+object to copy, so care must be taken to _control_ object-specific state 
+in function closures and attributes -- keeping function state independent 
+from object state is _in general_ a good practice.
+
 
 ### `MIN_LENGTH_REF` / `<options>.min_length_ref` 
 
-Defines the default minimum length of repeating string or bin-int to 
+Defines the default minimum length of repeating string or `BigInt`'s to 
 include as a reference in the output.
 
 If set to `0`, referencing will be disabled.
 
 Default: 96  
-
-
-### `DEBUG`
 
 
 
@@ -194,10 +248,14 @@ structure traversed:
 - map -> pair of numbers -- the first indicates item order the second 
   if 0 selects the key, if 1 selects the value.
 
-Note that string path items are unambiguous and are always treated as 
-attributes.
-
 An empty path indicates the root object.
+
+
+Notes:
+- String path items are unambiguous and are always treated as attributes.  
+  This enables referencing of attributes of any object like arrays, maps, ...etc.
+- Map/set paths are structured as if sets and maps are represented by 
+  arrays structured as their respective constructors expect as input.
 
 
 ### Referencing 
@@ -205,11 +263,11 @@ An empty path indicates the root object.
 If an object is encountered for a second time it will be serialized as 
 a reference by path to the first occurrence.
 
-Format:
+Grammar:
 ```bnf
 <ref> ::= 
 	'<REF[]>'
-	| '<REF[' <path-items> ']>'
+	| '<REF[' <path-items> ']> 
 	
 <path-items> ::=
 	<item>
@@ -258,7 +316,7 @@ serialize([null, undefined, NaN]) // -> '[null,undefined,NaN]'
 ### Sparse arrays
 
 Sparse arrays are represented in the same way JavaScript handles them 
-syntactically.
+syntactically -- with commas separating empty "positions".
 
 Example:
 ```javascript
@@ -266,10 +324,9 @@ serialize([,]) // -> '[,]'
 serialize([,,]) // -> '[,,]'
 ```
 
-Note that trailing commas are ignored in the same way JavaScript ignores 
-them:
+Trailing commas are handled in the same way JavaScript handles them:
 ```javascript
-// trailing comma...
+// trailing commas are ignored...
 serialize([1,]) // -> '[1]'
 
 // sparse element...
@@ -298,6 +355,10 @@ serialize(-Infinity) // -> '-Infinity'
 
 ### Map / Set
 
+Maps and sets are stored in the same format as their respective constructor 
+calls, dropping the `new` keyword:
+
+Grammar:
 ```bnf
 <map> ::=
 	'Map([])
@@ -311,7 +372,6 @@ serialize(-Infinity) // -> '-Infinity'
 	'[' <value> ',' <value> ']'
 ```
 
-
 ```bnf
 <set> ::=
 	'Set([])
@@ -322,7 +382,7 @@ serialize(-Infinity) // -> '-Infinity'
 	| <value> ',' <set-items> 
 ```
 
-
+Examples:
 ```javascript
 serialize(new Set([1,2,3])) // -> 'Set([1,2,3])'
 serialize(new Map([['a', 1], ['b', 2]])) // -> 'Map([["a",1],["b",2]])'
@@ -331,25 +391,43 @@ serialize(new Map([['a', 1], ['b', 2]])) // -> 'Map([["a",1],["b",2]])'
 
 ### Functions
 
+A function can be stored in one of two ways:
+1. As code (default)
+2. As a function index, if an array to store function references is given. 
+
+Grammar:
 ```bnf
 <func> ::=
 	'<FUNC[' <length> ',(' <func-spec> ')]>
 
 <func-spec> ::=
 	<code>
-	| <number>
+	| <index>
 
-<length> ::=
-	<number>
+<length> ::= <number>
+
+<index> ::= <number>
 ```
+
+`<length>` is the length of the next block in chars, including the braces.
+
 
 ```javascript
 serialize(function(){}) // -> '<FUNC[14,(function(){})]>'
+
+var functions = []
+serialize(function(){}, {functions}) // -> '<FUNC[3,(0)]>'
 ```
+
+Note that deserializing functions is disabled by default as it can pose 
+a security risk if the input to `deserialize(..)` is not trusted.
+(see: [`deserialize(..)`](#deserialize-ejson-parse))
 
 
 
 ## Running tests
+
+`serialize.js` uses ['test.js'](/flynx/test.js) for testing.
 
 Get the development dependencies:
 ```shell
@@ -363,10 +441,22 @@ $ npm test
 
 To run the tests directly:
 ```shell
-$ node ./test.js
+$ ./test.js
+```
+
+To run the tests with modifier chains of length 3:
+```shell
+$ ./test.js -m 3
 ```
 
 
+
+## License
+
+[BSD 3-Clause License](./LICENSE)
+
+Copyright (c) 2014-2026, Alex A. Naanou,  
+All rights reserved.
 
 
 <!-- vim:set nowrap : -->

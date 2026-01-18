@@ -771,7 +771,7 @@ function(str, options){
 
 var deepCopy =
 module.deepCopy =
-function(obj, funcs){
+function(obj, funcs=true){
 	var options = {functions: funcs}
 	return deserialize(
 		serialize(obj, null, 0, options), 
@@ -781,10 +781,7 @@ function(obj, funcs){
 var partialDeepCopy =
 module.partialDeepCopy =
 function(obj, funcs=[]){
-	var options = {functions: funcs}
-	return deserialize(
-		serialize(obj, null, 0, options), 
-		options) }
+	return deepCopy(obj, funcs) }
 
 
 
