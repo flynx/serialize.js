@@ -29,7 +29,7 @@ For basic use:
 $ npm install ig-serilaize
 ```
 
-Or just download and drop [serialize.js](serialize.js) into your code.
+Or just download and drop [serialize.js](./serialize.js) into your code.
 
 
 ```javascript
@@ -74,7 +74,7 @@ var serialize = require('ig-serialize')
 Repeating strings and `BigInt`'s longer that `MIN_LENGTH_REF` are stored 
 by reference by default.
 
-See: [`MIN_LENGTH_REF`](#min_length_ref-options-min_length_ref) 
+See: [`MIN_LENGTH_REF`](#min_length_ref--optionsmin_length_ref) 
 
 
 ### Serializing functions
@@ -96,7 +96,7 @@ Thus, care must be taken when serializing structures containing function.
 
 ### `eJSON`
 
-An `JSON`-api-compatible object providing [`.stringify(..)`](#serialize-ejson-stringify) and [`.parse(..)`](#deserialize-ejson-parse)
+An `JSON`-api-compatible object providing [`.stringify(..)`](#serialize--ejsonstringify) and [`.parse(..)`](#deserialize--ejsonparse)
 static methods.
 
 
@@ -421,7 +421,7 @@ serialize(function(){}, {functions}) // -> '<FUNC[3,(0)]>'
 
 Note that deserializing functions is disabled by default as it can pose 
 a security risk if the input to `deserialize(..)` is not trusted.
-(see: [`deserialize(..)`](#deserialize-ejson-parse))
+(see: [`deserialize(..)`](#deserialize--ejsonparse))
 
 
 
