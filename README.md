@@ -208,10 +208,8 @@ a reference by path to the first occurrence.
 Format:
 ```bnf
 <ref> ::= 
-	'<REF' <path> '>'
-	
-<path> ::= 
-	'[' <path-items> ']'
+	'<REF[]>'
+	| '<REF[' <path-items> ']>'
 	
 <path-items> ::=
 	<item>
@@ -300,6 +298,31 @@ serialize(-Infinity) // -> '-Infinity'
 
 ### Map / Set
 
+```bnf
+<map> ::=
+	'Map([])
+	| 'Map([' <map-items> '])
+
+<map-items> ::=
+	<map-item>
+	| <map-item> ',' <map-items> 
+
+<map-item> ::=
+	'[' <value> ',' <value> ']'
+```
+
+
+```bnf
+<set> ::=
+	'Set([])
+	| 'Set([' <set-items> '])
+
+<set-items> ::=
+	<value>
+	| <value> ',' <set-items> 
+```
+
+
 ```javascript
 serialize(new Set([1,2,3])) // -> 'Set([1,2,3])'
 serialize(new Map([['a', 1], ['b', 2]])) // -> 'Map([["a",1],["b",2]])'
@@ -307,6 +330,18 @@ serialize(new Map([['a', 1], ['b', 2]])) // -> 'Map([["a",1],["b",2]])'
 
 
 ### Functions
+
+```bnf
+<func> ::=
+	'<FUNC[' <length> ',(' <func-spec> ')]>
+
+<func-spec> ::=
+	<code>
+	| <number>
+
+<length> ::=
+	<number>
+```
 
 ```javascript
 serialize(function(){}) // -> '<FUNC[14,(function(){})]>'
