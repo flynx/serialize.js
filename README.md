@@ -74,7 +74,7 @@ var serialize = require('ig-serialize')
 Repeating strings and `BigInt`'s longer that `MIN_LENGTH_REF` are stored 
 by reference by default.
 
-See: ['MIN_LENGTH_REF'](#min_length_ref-options-min_length_ref) 
+See: [`MIN_LENGTH_REF`](#min_length_ref-options-min_length_ref) 
 
 
 ### Serializing functions
