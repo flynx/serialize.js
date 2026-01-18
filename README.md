@@ -278,11 +278,33 @@ serialize([1,]) // -> '[1]'
 serialize([1,,]) // -> '[1,,]'
 ```
 
+
 ### BigInt
+
+Serialized as represented in JavaScript.
+
+```javascript
+serialize(9999999999n) // -> '9999999999n'
+```
+
 
 ### Infinity
 
+Serialized as represented in JavaScript
+
+```javascript
+serialize(Infinity) // -> 'Infinity'
+serialize(-Infinity) // -> '-Infinity'
+```
+
+
 ### Map / Set
+
+```javascript
+serialize(new Set([1,2,3])) // -> 'Set([1,2,3])'
+serialize(new Map([['a', 1], ['b', 2]])) // -> 'Map([["a",1],["b",2]])'
+```
+
 
 ### Functions
 
