@@ -308,6 +308,9 @@ serialize(new Map([['a', 1], ['b', 2]])) // -> 'Map([["a",1],["b",2]])'
 
 ### Functions
 
+```javascript
+serialize(function(){}) // -> '<FUNC[14,(function(){})]>'
+```
 
 
 
