@@ -34,7 +34,7 @@ Or just download and drop [serialize.js](serialize.js) into your code.
 
 
 ```javascript
-serialize = require('ig-serialize')
+var serialize = require('ig-serialize')
 ```
 
 
