@@ -1,5 +1,7 @@
 # serilize.js: Extended JSON serilization
 
+An extended-JSON serilization/deserialization implementation.
+
 This extends the default JSON serialization adding the following:
 - Recursive data structure serialization
 - Sparse array serialization
