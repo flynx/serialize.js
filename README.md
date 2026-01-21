@@ -1,8 +1,9 @@
 # serilize.js: Extended JSON serilization
 
-An extended-JSON serilization/deserialization implementation.
+JSON-like extended serialization/deserialization, and serialization-based 
+object isolated deep and semi-deep copying library.
 
-This extends the default JSON serialization adding the following:
+This extends the default JSON specification adding the following:
 - Recursive data structure serialization
 - Sparse array serialization
 - `undefined`/`NaN` serialization
