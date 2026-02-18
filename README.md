@@ -1,4 +1,4 @@
-# serilize.js: Extended JSON serilization
+# serialize.js: Extended JSON serilization
 
 JSON-like extended serialization/deserialization, and serialization-based 
 object isolated deep and semi-deep copying library.
