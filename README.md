@@ -15,6 +15,9 @@ Data not stored:
 - Attributes on arrays, maps, sets, and functions,
 - Function closures.
 
+Note that this a strict superset of JSON, this if only JSON-supported 
+data is serialized the output will be strict JSON.
+
 
 ## Motivation
 
@@ -451,6 +454,22 @@ To run the tests with modifier chains of length 3:
 ```shell
 $ ./test.js -m 3
 ```
+
+
+
+## Alternatives
+
+### https://github.com/WebReflection/flatted
+
+A very similar library that takes a different approach to the output 
+format (not JSON-compatible), lacks copying utils, and does not 
+support function serialization, but is smaller, and adds other language 
+support.
+
+
+### https://github.com/ungap/structured-clone/
+
+As above but slightly different approach to things, more types, cloning.
 
 
 
