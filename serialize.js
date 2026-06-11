@@ -333,9 +333,11 @@ module.eJSON = {
 		undefined: undefined,
 		NaN: NaN,
 
-		'<REF': 'reference',
+		//'<REF': 'reference',
+		[REFERENCE.split('%')[0]]: 'reference',
 
-		'<FUNC[': 'func',
+		//'<FUNC[': 'func',
+		[FUNCTION.split('%')[0]]: 'func',
 	},
 	
 
