@@ -18,6 +18,8 @@ Data not stored:
 Style and input sanitization:
 - Comments are treated as whitespace and are stripped from input
 - Trailing commas are ignored
+- `\``, `'`, and `"` are supported as string quotes
+- Object keys are optionally quoted if they confirm to JavaScript identifier spec.
 
 Note that this a strict superset of JSON, this if only JSON-supported 
 data is serialized the output will be strict JSON.
