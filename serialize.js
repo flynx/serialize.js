@@ -53,7 +53,6 @@
 (function(require){ var module={} // make module AMD/node compatible...
 /*********************************************************************/
 
-
 var NULL = 'null'
 var UNDEFINED = 'undefined'
 var NAN = 'NaN'
@@ -333,13 +332,11 @@ module.eJSON = {
 		undefined: undefined,
 		NaN: NaN,
 
-		//'<REF': 'reference',
 		[REFERENCE.split('%')[0]]: 'reference',
 
-		//'<FUNC[': 'func',
 		[FUNCTION.split('%')[0]]: 'func',
 	},
-	
+
 
 	// generic helpers...
 	//
@@ -445,19 +442,39 @@ module.eJSON = {
 
 
 
+	// NOTE: this treats comments as whitespace...
+	COMMENTS: true,
 	WHITESPACE: ' \t\n',
 	skipWhitespace: function(str, i, line){
-		while(i < str.length 
-				&& this.WHITESPACE.includes(str[i])){
+		while(i < str.length){
+			if(this.COMMENTS){
+				// comment: '// ... \n'
+				if(str[i] == '/' && str[i+1] == '/'){
+					while(i < str.length && str[i] != '\n'){
+						i++ } }
+				// comment: '/* ... */'
+				if(str[i] == '/' && str[i+1] == '*'){
+					while(i < str.length && str.slice(i, i+2) != '*/'){
+						if(str[i] == '\n'){
+							line++ }
+						i++ } 
+					i += 2
+					if(i > str.length){
+						this.error('Unexpected end of input wile looking for "*/".', str, i-2, line) } } }
+			// non-whitespace...
+			if(!this.WHITESPACE.includes(str[i])){
+				break }
 			if(str[i] == '\n'){
 				line++ }
 			i++ }
 		return [i, line] },
 
+
 	//
-	//	.handler(match, str, i, line)
+	//	.handler(state, path, match, str, i, line)
 	//		-> [value, i, line]
 	//
+
 	number: function(state, path, match, str, i, line){
 		debug.lex('number', str, i, line)
 		// special cases..,

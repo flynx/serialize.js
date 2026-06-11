@@ -15,6 +15,10 @@ Data not stored:
 - Attributes on arrays, maps, sets, and functions,
 - Function closures.
 
+Style and input sanitization:
+- Comments are treated as whitespace and are stripped from input
+- Trailing commas are ignored
+
 Note that this a strict superset of JSON, this if only JSON-supported 
 data is serialized the output will be strict JSON.
 

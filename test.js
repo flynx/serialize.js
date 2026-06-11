@@ -28,6 +28,10 @@ var ejson = false
 
 var pre_cycle = true
 
+// XXX BUG: deserialize('1 2') -> 1
+// 		should throw:
+// 			'SyntaxError: Unexpected non-whitespace character after JSON at position 2 (line 1 column 3)'
+
 // XXX test whitespace handling...
 var setups = test.Setups({
 	'true': function(assert){
@@ -228,6 +232,24 @@ test.Cases({
 
 		// arrays...
 		['[1,2,]', '[1,2]'],
+
+		// comments...
+		['123 // comment...', '123'],
+		['// comment...\n123', '123'],
+		['// comment...\n123// comment...', '123'],
+		['/* comment */ 123', '123'],
+		['123 /* comment */', '123'],
+		['/* comment */123/* comment */', '123'],
+		[`// comment...
+			[
+				// comment...
+				1, // comment...
+				2 /* comment */,
+				// comment...
+				/* comment */ 3 /* comment*/,
+				// comment...
+			]
+			// comment...`, '[1,2,3]']
 	],
 	'syntax-simplifications': function(assert){
 		var aa, bb
