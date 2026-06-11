@@ -443,6 +443,7 @@ module.eJSON = {
 
 
 	// NOTE: this treats comments as whitespace...
+	// XXX will we need to process comments in any way?
 	COMMENTS: true,
 	WHITESPACE: ' \t\n',
 	skipWhitespace: function(str, i, line){
