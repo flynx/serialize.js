@@ -788,6 +788,15 @@ function(str, options){
 //---------------------------------------------------------------------
 // utils...
 
+
+// NOTE: this will fail on any non-vanilla data...
+var toVanilla =
+module.toVanilla =
+function(str){
+	return JSON.stringify(
+		deserialize(str)) }
+
+
 var deepCopy =
 module.deepCopy =
 function(obj, funcs=true){

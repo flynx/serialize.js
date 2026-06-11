@@ -199,6 +199,18 @@ eJSON.parse(<string>, {functions: <functions>})
 ```
 
 
+### `toVanilla(..)`
+
+Convert eJSON formatted string to Vanilla JSON string.
+
+```
+toVanilla(<eJSON-string>)
+	-> <JSON-string>
+```
+
+Note that this will fail on anny data not supported by the Vanilla `JOSN.stringify(..)`.
+
+
 ### `deepCopy(..)`
 
 Deep-copy an object.
